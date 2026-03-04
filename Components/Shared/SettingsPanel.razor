@@ -1,8 +1,7 @@
-@rendermode InteractiveServer
 @inject LanguageService Lang
 @inject IJSRuntime JS
 
-@* Blazor manages this style tag through HeadOutlet — survives all navigation *@
+@* Blazor injects this into <head> via HeadOutlet — persists across SPA navigation *@
 @if (_savedColor != null)
 {
     <HeadContent>
@@ -70,7 +69,6 @@
         ("Yellow", "#b88010"),
     ];
 
-    // Exact CSS values for all preset colors
     private static readonly Dictionary<string,(string lt,string dk,string glow,string border,string shine,string bgc,string bgm)> Palette = new()
     {
         ["#c84010"] = ("#d45018","#8a1800","rgba(200,64,16,.45)",  "#6a1500","rgba(255,140,60,.25)", "#cc4010","#6a1a08"),
@@ -88,7 +86,6 @@
         if (Palette.TryGetValue(hex, out var p))
             return $":root{{--primary:{hex};--primary-lt:{p.lt};--primary-dk:{p.dk};--glow:{p.glow};--btn-border:{p.border};--btn-shine:{p.shine};--bg-center:{p.bgc};--bg-mid:{p.bgm};}}";
 
-        // Custom color: compute derived values
         var r = Convert.ToInt32(hex.Substring(1, 2), 16);
         var g = Convert.ToInt32(hex.Substring(3, 2), 16);
         var b = Convert.ToInt32(hex.Substring(5, 2), 16);
@@ -105,6 +102,9 @@
     {
         if (firstRender)
         {
+            var savedLang = await JS.InvokeAsync<string?>("getSavedLang");
+            if (savedLang != null) Lang.Set(savedLang);
+
             _savedColor = await JS.InvokeAsync<string?>("getSavedTheme");
             if (_savedColor != null)
             {
@@ -117,7 +117,12 @@
     private void Toggle() => open = !open;
     private void Close()  => open = false;
 
-    private void PickLang(string lang) { Lang.Set(lang); open = false; }
+    private async Task PickLang(string lang)
+    {
+        Lang.Set(lang);
+        await JS.InvokeVoidAsync("saveLang", lang);
+        open = false;
+    }
 
     private async Task PickColor(string hex)
     {

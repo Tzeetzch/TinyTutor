@@ -1,57 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
 
-<head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <base href="/" />
-    <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
-    <link rel="stylesheet" href="app.css?v=1.1" />
-    <link rel="stylesheet" href="TinyTutor.styles.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <link rel="manifest" href="manifest.json" />
-    <meta name="theme-color" content="#c84010" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="TinyTutor" />
-    <link rel="apple-touch-icon" href="icon-192.png" />
-    <HeadOutlet />
-    <script>
-        // Preset palette for no-flash initial load (before Blazor circuit connects)
-        var _pal = {
-            '#c84010':{lt:'#d45018',dk:'#8a1800',glow:'rgba(200,64,16,.45)',  border:'#6a1500',shine:'rgba(255,140,60,.25)', bgc:'#cc4010',bgm:'#6a1a08'},
-            '#c82828':{lt:'#d83838',dk:'#8a0000',glow:'rgba(200,40,40,.45)',  border:'#6a0000',shine:'rgba(255,96,84,.25)',  bgc:'#cc2828',bgm:'#6a0808'},
-            '#d44080':{lt:'#e05090',dk:'#8a1850',glow:'rgba(212,64,128,.45)', border:'#6a1040',shine:'rgba(255,140,172,.25)',bgc:'#d44080',bgm:'#6a1040'},
-            '#8040c8':{lt:'#9050d8',dk:'#501888',glow:'rgba(128,64,200,.45)', border:'#400870',shine:'rgba(183,116,255,.25)',bgc:'#8040c8',bgm:'#401070'},
-            '#2060c8':{lt:'#3070d8',dk:'#003888',glow:'rgba(32,96,200,.45)',  border:'#001870',shine:'rgba(87,172,255,.25)', bgc:'#2060c8',bgm:'#001060'},
-            '#108890':{lt:'#1898a0',dk:'#005860',glow:'rgba(16,136,144,.45)', border:'#003848',shine:'rgba(70,212,220,.25)', bgc:'#108890',bgm:'#003840'},
-            '#208850':{lt:'#309860',dk:'#005820',glow:'rgba(32,136,80,.45)',  border:'#003818',shine:'rgba(87,212,124,.25)', bgc:'#208850',bgm:'#003820'},
-            '#b88010':{lt:'#c89018',dk:'#785000',glow:'rgba(184,128,16,.45)', border:'#583000',shine:'rgba(239,204,70,.25)', bgc:'#b88010',bgm:'#584000'}
-        };
-        window.getSavedTheme = function () { return localStorage.getItem('tinytutor-theme'); };
-        window.saveTheme     = function (hex) { localStorage.setItem('tinytutor-theme', hex); };
-        window.blurActive    = function () { if (document.activeElement) document.activeElement.blur(); };
-        // Apply before Blazor connects so there's no flash on hard load
-        (function () {
-            var t = localStorage.getItem('tinytutor-theme'); if (!t) return;
-            var p = _pal[t], s = document.documentElement.style;
-            if (p) {
-                s.setProperty('--primary',t); s.setProperty('--primary-lt',p.lt); s.setProperty('--primary-dk',p.dk);
-                s.setProperty('--glow',p.glow); s.setProperty('--btn-border',p.border); s.setProperty('--btn-shine',p.shine);
-                s.setProperty('--bg-center',p.bgc); s.setProperty('--bg-mid',p.bgm);
-            }
-        })();
-    </script>
-</head>
-
-<body>
-    <Routes />
-    <script src="js/speech.js"></script>
-    <script src="_framework/blazor.web.js"></script>
-    <script>
-        if ('serviceWorker' in navigator)
-            navigator.serviceWorker.register('/service-worker.js');
-    </script>
-</body>
-
-</html>
+<Router AppAssembly="typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)" />
+        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <PageTitle>Not found</PageTitle>
+        <LayoutView Layout="@typeof(Layout.MainLayout)">
+            <p>There's nothing at this address.</p>
+        </LayoutView>
+    </NotFound>
+</Router>

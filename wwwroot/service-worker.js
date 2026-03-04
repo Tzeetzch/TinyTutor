@@ -1,6 +1,5 @@
-const CACHE = 'tinytutor-v1.1';
+const CACHE = 'tinytutor-v1.2';
 const PRECACHE = [
-    '/',
     '/app.css?v=1.1',
     '/manifest.json',
     '/icon-192.png',
@@ -21,9 +20,9 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-    // Network-first for navigation (always fresh Blazor app)
+    // Always fetch navigation from network (WASM index.html must be fresh)
     if (e.request.mode === 'navigate') {
-        e.respondWith(fetch(e.request).catch(() => caches.match('/')));
+        e.respondWith(fetch(e.request));
         return;
     }
     // Cache-first for static assets
