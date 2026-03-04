@@ -1,0 +1,72 @@
+.activity-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem 1.5rem;
+    width: 200px;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.activity-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px var(--glow);
+    border-color: var(--primary);
+    color: var(--text);
+}
+
+.activity-icon {
+    font-size: 2.5rem;
+}
+
+.activity-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.activity-card h2 {
+    font-size: 1.25rem;
+    text-align: center;
+    margin: 0.5rem 0 0.25rem;
+    color: var(--text);
+}
+
+.activity-card p {
+    font-size: 0.9rem;
+    text-align: center;
+    margin: 0;
+    color: var(--text-muted);
+}
+
+@media (max-width: 640px) {
+    .activity-card {
+        width: 100%;
+        flex-direction: row;
+        padding: 1rem 1.25rem;
+        text-align: left;
+    }
+
+    .activity-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+        flex-shrink: 0;
+    }
+
+    .activity-card h2 {
+        font-size: 1.1rem;
+        text-align: initial;
+        margin: 0 0 0.15rem;
+    }
+
+    .activity-card p {
+        font-size: 0.82rem;
+        text-align: initial;
+    }
+}

@@ -1,0 +1,53 @@
+.flashcard-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 1rem 0 1.5rem;
+}
+
+.flashcard {
+    background: var(--surface);
+    border: 2px solid var(--primary);
+    border-radius: 20px;
+    width: 220px;
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.5), 0 0 16px var(--glow);
+}
+
+.flashcard-number {
+    font-size: 5rem;
+    font-weight: 900;
+    color: var(--text);
+    line-height: 1;
+}
+
+.flashcard-word {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-top: 0.4rem;
+}
+
+.flashcard-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.streak-display {
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+@media (max-width: 640px) {
+    .flashcard        { width: min(80vw, 280px); min-height: 170px; }
+    .flashcard-number { font-size: 4rem; }
+    .flashcard-buttons { flex-direction: column; align-items: center; gap: 0.6rem; }
+    .flashcard-buttons ::deep .tt-btn { width: min(80vw, 260px); }
+}

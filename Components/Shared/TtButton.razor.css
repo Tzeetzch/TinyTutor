@@ -1,0 +1,45 @@
+.tt-btn {
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 0.6rem 1.5rem;
+    letter-spacing: 0.02em;
+    transition: box-shadow 0.15s, transform 0.1s;
+}
+
+.tt-btn:hover:not(:disabled) { transform: scale(1.04); }
+.tt-btn:disabled              { opacity: 0.4; cursor: not-allowed; }
+
+.tt-btn-primary {
+    background: linear-gradient(to bottom, var(--primary-lt), var(--primary-dk));
+    color: #fff5f0;
+    border: 1px solid var(--btn-border);
+    box-shadow: 0 2px 8px var(--glow), inset 0 1px 0 var(--btn-shine);
+}
+.tt-btn-primary:hover:not(:disabled) {
+    background: linear-gradient(to bottom, var(--primary), var(--primary-dk));
+    box-shadow: 0 4px 16px var(--glow);
+}
+
+.tt-btn-success {
+    background: linear-gradient(to bottom, var(--primary), var(--primary-dk));
+    color: #fff5f0;
+    border: 1px solid var(--btn-border);
+    box-shadow: 0 2px 8px var(--glow), inset 0 1px 0 var(--btn-shine);
+}
+.tt-btn-success:hover:not(:disabled) {
+    background: linear-gradient(to bottom, var(--primary-lt), var(--primary-dk));
+    box-shadow: 0 4px 16px var(--glow);
+}
+
+.tt-btn-icon {
+    background: none;
+    border: none;
+    font-size: 1.8rem;
+    padding: 0;
+    color: var(--primary);
+    opacity: 0.85;
+    transition: opacity 0.15s, transform 0.1s;
+}
+.tt-btn-icon:hover:not(:disabled) { opacity: 1; transform: scale(1.2); }

@@ -1,0 +1,113 @@
+/* ── Language toggle ── */
+.lang-toggle { display: flex; gap: 0.3rem; }
+
+.lang-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 6px;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.lang-btn:hover { color: var(--text); border-color: var(--primary); }
+
+.lang-active {
+    background: linear-gradient(to bottom, var(--primary-lt), var(--primary-dk));
+    border-color: var(--btn-border);
+    color: #fff5f0;
+    box-shadow: 0 1px 6px var(--glow);
+}
+
+/* ── Settings panel ── */
+.settings-panel { position: relative; }
+
+.settings-gear-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.25rem 0.55rem;
+    cursor: pointer;
+    font-size: 1rem;
+    color: var(--text-muted);
+    transition: all 0.15s;
+    touch-action: manipulation;
+}
+.settings-gear-btn:hover { border-color: var(--primary); color: var(--text); }
+
+.settings-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+}
+
+.settings-dropdown {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.9rem 1rem;
+    z-index: 100;
+    min-width: 210px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.55);
+}
+
+.settings-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.settings-item-label {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+}
+
+.settings-item-col {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+}
+
+.settings-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 0.6rem 0;
+}
+
+/* ── Theme color dots ── */
+.theme-presets {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.theme-dot {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+    padding: 0;
+}
+.theme-dot:hover  { transform: scale(1.2); }
+.theme-dot-active { border-color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,0.4); transform: scale(1.2); }
+
+.theme-custom {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    cursor: pointer;
+    padding: 0;
+    background: none;
+    overflow: hidden;
+}

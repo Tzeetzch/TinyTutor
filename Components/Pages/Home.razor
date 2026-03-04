@@ -10,21 +10,9 @@
 </div>
 
 <div class="activity-cards">
-    <a href="/chart" class="activity-card card-blue">
-        <div class="activity-icon">🔢</div>
-        <h2>@Strings.NavChart(Lang.Current)</h2>
-        <p>@Strings.HomeChartDesc(Lang.Current)</p>
-    </a>
-    <a href="/flashcards" class="activity-card card-green">
-        <div class="activity-icon">🃏</div>
-        <h2>@Strings.NavFlashCards(Lang.Current)</h2>
-        <p>@Strings.HomeCardsDesc(Lang.Current)</p>
-    </a>
-    <a href="/quiz" class="activity-card card-orange">
-        <div class="activity-icon">⭐</div>
-        <h2>@Strings.NavQuiz(Lang.Current)</h2>
-        <p>@Strings.HomeQuizDesc(Lang.Current)</p>
-    </a>
+    <ActivityCard Href="/chart"      Icon="🔢" Title="@Strings.NavChart(Lang.Current)"     Description="@Strings.HomeChartDesc(Lang.Current)" />
+    <ActivityCard Href="/flashcards" Icon="🃏" Title="@Strings.NavFlashCards(Lang.Current)" Description="@Strings.HomeCardsDesc(Lang.Current)" />
+    <ActivityCard Href="/quiz"       Icon="⭐" Title="@Strings.NavQuiz(Lang.Current)"      Description="@Strings.HomeQuizDesc(Lang.Current)" />
 </div>
 
 @code {

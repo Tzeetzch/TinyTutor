@@ -7,7 +7,8 @@
 
 <PageHeader Title="@Strings.QuizTitle(Lang.Current)">
     <Action>
-        <button class="quiz-cfg-btn" @onclick="() => showSettings = !showSettings">
+        <button class="quiz-cfg-btn"
+                @onclick="() => showSettings = !showSettings">
             @(showSettings ? "✕" : "⚙️")
         </button>
     </Action>
@@ -22,7 +23,7 @@
         {
             var mode = m;
             var enabled = enabledModes.Contains(mode);
-            var isOnly  = enabledModes.Count == 1 && enabled;
+            var isOnly = enabledModes.Count == 1 && enabled;
             <button class="mode-btn @(enabled ? "mode-active" : "mode-off") @(isOnly ? "mode-only" : "")"
                     @onclick="() => ToggleMode(mode)"
                     disabled="@isOnly">
@@ -50,96 +51,103 @@
 <div class="quiz-question">
     @if (currentMode == QuizMode.Word)
     {
-        <div class="quiz-word">@NumberHelper.GetDisplayWord(targetNumber, Lang.Current)</div>
-        <TtButton Variant="icon" OnClick="HearQuestion">🔊</TtButton>
-    }
+        <div class="quiz-word">@NumberHelper.GetDisplayWord(targetNumber,
+                    Lang.Current)</div>
+            <TtButton Variant="icon"
+                      OnClick="HearQuestion">🔊</TtButton>
+        }
     else if (currentMode == QuizMode.Count)
-    {
-        <p class="quiz-question-text">@QuestionText</p>
-        <div class="quiz-dots-box">
-            <div class="quiz-dots">
-                @for (int i = 0; i < targetNumber; i++)
+        {
+            <p class="quiz-question-text">@QuestionText</p>
+            <div class="quiz-dots-box">
+                <div class="quiz-dots">
+                    @for (int i = 0; i < targetNumber; i++)
+                    {
+                        <div class="dot-circle"></div>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <p class="quiz-question-text">@QuestionText</p>
+            <div class="quiz-sequence">
+                @if (currentMode == QuizMode.Before)
                 {
-                    <div class="dot-circle"></div>
+                    <div class="sequence-box seq-blank">?</div>
+                    <div class="sequence-arrow">→</div>
+                    <div class="sequence-box seq-given">@questionNum</div>
+                }
+                else if (currentMode == QuizMode.After)
+                {
+                    <div class="sequence-box seq-given">@questionNum</div>
+                    <div class="sequence-arrow">→</div>
+                    <div class="sequence-box seq-blank">?</div>
+                }
+                else if (currentMode == QuizMode.Between)
+                {
+                    <div class="sequence-box seq-given">@questionNum</div>
+                    <div class="sequence-arrow">→</div>
+                    <div class="sequence-box seq-blank">?</div>
+                    <div class="sequence-arrow">→</div>
+                    <div class="sequence-box seq-given">@questionNum2</div>
                 }
             </div>
-        </div>
-    }
-    else
-    {
-        <p class="quiz-question-text">@QuestionText</p>
-        <div class="quiz-sequence">
-            @if (currentMode == QuizMode.Before)
-            {
-                <div class="sequence-box seq-blank">?</div>
-                <div class="sequence-arrow">→</div>
-                <div class="sequence-box seq-given">@questionNum</div>
-            }
-            else if (currentMode == QuizMode.After)
-            {
-                <div class="sequence-box seq-given">@questionNum</div>
-                <div class="sequence-arrow">→</div>
-                <div class="sequence-box seq-blank">?</div>
-            }
-            else if (currentMode == QuizMode.Between)
-            {
-                <div class="sequence-box seq-given">@questionNum</div>
-                <div class="sequence-arrow">→</div>
-                <div class="sequence-box seq-blank">?</div>
-                <div class="sequence-arrow">→</div>
-                <div class="sequence-box seq-given">@questionNum2</div>
-            }
-        </div>
-        <TtButton Variant="icon" OnClick="HearQuestion">🔊</TtButton>
-    }
-</div>
-
-@* ── Choices ──────────────────────────────────────────────── *@
-<div class="quiz-choices">
-    @foreach (var choice in choices)
-    {
-        var c = choice;
-        var cls = (solved && c == targetNumber) ? "btn-correct"
-                : wrongAttempts.Contains(c)     ? "btn-wrong"
-                :                                 "btn-choice";
-        var disabled = solved || wrongAttempts.Contains(c);
-        <button class="btn quiz-btn @cls" @onclick="() => Answer(c)" disabled="@disabled">
-            @c
-        </button>
-    }
-</div>
-
-@* ── Feedback + next row ──────────────────────────────────── *@
-@if (solved)
-{
-    <div class="quiz-feedback feedback-correct">
-        @Strings.QuizCorrect(Lang.Current) @NumberHelper.GetDisplayWord(targetNumber, Lang.Current)!
-    </div>
-
-    <div class="quiz-next-row">
-        <TtButton Variant="primary" OnClick="NextQuestion">@Strings.QuizNext(Lang.Current)</TtButton>
-        @if (autoAdvanceSeconds > 0 && countdownRemaining > 0)
-        {
-            <span class="countdown-badge">@countdownRemaining</span>
+            <TtButton Variant="icon"
+                      OnClick="HearQuestion">🔊</TtButton>
         }
     </div>
-}
 
-@* ── Score ────────────────────────────────────────────────── *@
-<div class="quiz-score">
-    @Strings.QuizScore(Lang.Current): @score / @asked
-    @if (streak >= 2)
+    @* ── Choices ──────────────────────────────────────────────── *@
+    <div class="quiz-choices">
+        @foreach (var choice in choices)
+        {
+            var c = choice;
+            var cls = (solved && c == targetNumber) ? "btn-correct"
+                    : wrongAttempts.Contains(c) ? "btn-wrong"
+                    : "btn-choice";
+            var disabled = solved || wrongAttempts.Contains(c);
+            <button class="btn quiz-btn @cls"
+                    @onclick="() => Answer(c)"
+                    disabled="@disabled">
+                @c
+            </button>
+        }
+    </div>
+
+    @* ── Feedback + next row ──────────────────────────────────── *@
+    @if (solved)
     {
-        <span class="quiz-streak">🔥 @streak</span>
+        <div class="quiz-feedback feedback-correct">
+            @Strings.QuizCorrect(Lang.Current)
+            @NumberHelper.GetDisplayWord(targetNumber, Lang.Current)!
+        </div>
+
+        <div class="quiz-next-row">
+            <TtButton Variant="primary"
+                      OnClick="NextQuestion">@Strings.QuizNext(Lang.Current)</TtButton>
+            @if (autoAdvanceSeconds > 0 && countdownRemaining > 0)
+            {
+                <span class="countdown-badge">@countdownRemaining</span>
+            }
+        </div>
     }
-</div>
+
+    @* ── Score ────────────────────────────────────────────────── *@
+    <div class="quiz-score">
+        @Strings.QuizScore(Lang.Current): @score / @asked
+        @if (streak >= 2)
+        {
+            <span class="quiz-streak">🔥 @streak</span>
+        }
+    </div>
 
 
 @code {
     private enum QuizMode { Word, Before, After, Between, Count }
 
-    private static readonly QuizMode[]  AllModes = Enum.GetValues<QuizMode>();
-    private static readonly Random      Rng      = new();
+    private static readonly QuizMode[] AllModes = Enum.GetValues<QuizMode>();
+    private static readonly Random Rng = new();
 
     private static readonly (string Label, int Secs)[] DelayOptions =
         [("Off", 0), ("2s", 2), ("3s", 3), ("5s", 5)];
@@ -166,10 +174,10 @@
     private CancellationTokenSource? _cts;
 
     // ── Lifecycle ──────────────────────────────────────────
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
         Lang.OnChange += OnLanguageChanged;
-        NewQuestion();
+        await NextQuestion();
     }
 
     private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
@@ -184,21 +192,22 @@
     // ── Computed ───────────────────────────────────────────
     private string ModeLabel(QuizMode m) => m switch
     {
-        QuizMode.Word    => Strings.QuizModeWord(Lang.Current),
-        QuizMode.Before  => Strings.QuizModeBefore(Lang.Current),
-        QuizMode.After   => Strings.QuizModeAfter(Lang.Current),
+        QuizMode.Word => Strings.QuizModeWord(Lang.Current),
+        QuizMode.Before => Strings.QuizModeBefore(Lang.Current),
+        QuizMode.After => Strings.QuizModeAfter(Lang.Current),
         QuizMode.Between => Strings.QuizModeBetween(Lang.Current),
-        QuizMode.Count   => Strings.QuizModeCount(Lang.Current),
-        _                => ""
+        QuizMode.Count => Strings.QuizModeCount(Lang.Current),
+        _ => ""
     };
 
     private string QuestionText => currentMode switch
     {
-        QuizMode.Before  => Strings.QuizBefore(Lang.Current, questionNum),
-        QuizMode.After   => Strings.QuizAfter(Lang.Current, questionNum),
-        QuizMode.Between => Strings.QuizBetween(Lang.Current, questionNum, questionNum2),
-        QuizMode.Count   => Strings.QuizCountDots(Lang.Current),
-        _                => ""
+        QuizMode.Before => Strings.QuizBefore(Lang.Current, questionNum),
+        QuizMode.After => Strings.QuizAfter(Lang.Current, questionNum),
+        QuizMode.Between => Strings.QuizBetween(Lang.Current, questionNum,
+questionNum2),
+        QuizMode.Count => Strings.QuizCountDots(Lang.Current),
+        _ => ""
     };
 
     // ── Mode toggling ──────────────────────────────────────
@@ -222,42 +231,42 @@
     void NewQuestion()
     {
         CancelCountdown();
-        solved        = false;
+        solved = false;
         wrongAttempts = [];
 
         // Pick a random enabled mode
         var pool = enabledModes.ToArray();
-        currentMode  = pool[Rng.Next(pool.Length)];
+        currentMode = pool[Rng.Next(pool.Length)];
 
         switch (currentMode)
         {
             case QuizMode.Word:
                 targetNumber = Rng.Next(1, 31);
-                choices      = GenerateChoices(targetNumber);
+                choices = GenerateChoices(targetNumber);
                 break;
 
             case QuizMode.Before:
-                questionNum  = Rng.Next(2, 31);
+                questionNum = Rng.Next(2, 31);
                 targetNumber = questionNum - 1;
-                choices      = GenerateChoices(targetNumber, questionNum);
+                choices = GenerateChoices(targetNumber, questionNum);
                 break;
 
             case QuizMode.After:
-                questionNum  = Rng.Next(1, 30);
+                questionNum = Rng.Next(1, 30);
                 targetNumber = questionNum + 1;
-                choices      = GenerateChoices(targetNumber, questionNum);
+                choices = GenerateChoices(targetNumber, questionNum);
                 break;
 
             case QuizMode.Between:
                 targetNumber = Rng.Next(2, 30);
-                questionNum  = targetNumber - 1;
+                questionNum = targetNumber - 1;
                 questionNum2 = targetNumber + 1;
-                choices      = GenerateChoices(targetNumber, questionNum, questionNum2);
+                choices = GenerateChoices(targetNumber, questionNum, questionNum2);
                 break;
 
             case QuizMode.Count:
                 targetNumber = Rng.Next(1, 21);
-                choices      = GenerateChoices(targetNumber);
+                choices = GenerateChoices(targetNumber);
                 break;
         }
     }
@@ -265,7 +274,7 @@
     List<int> GenerateChoices(int correct, params int[] exclude)
     {
         var excluded = new HashSet<int>(exclude) { correct };
-        var pool     = new HashSet<int> { correct };
+        var pool = new HashSet<int> { correct };
 
         for (int attempt = 0; pool.Count < 4 && attempt < 200; attempt++)
         {
@@ -297,7 +306,8 @@
             solved = true;
             asked++;
             if (wrongAttempts.Count == 0) { score++; streak++; }
-            var feedback = Strings.SpeakCorrectFeedback(Lang.Current, wrongAttempts.Count, streak);
+            var feedback = Strings.SpeakCorrectFeedback(Lang.Current, wrongAttempts.Count,
+streak);
             await JS.InvokeVoidAsync("speakNumber",
                 feedback + NumberHelper.GetSpeechWord(targetNumber, Lang.Current),
                 Lang.LangCode);
@@ -307,7 +317,8 @@
         {
             streak = 0;
             wrongAttempts.Add(choice);
-            await JS.InvokeVoidAsync("speakNumber", Strings.SpeakWrongFeedback(Lang.Current), Lang.LangCode);
+            await JS.InvokeVoidAsync("speakNumber",
+Strings.SpeakWrongFeedback(Lang.Current), Lang.LangCode);
         }
     }
 
@@ -342,13 +353,13 @@
             }
 
             if (!token.IsCancellationRequested)
-        {
-            await InvokeAsync(async () =>
             {
-                await NextQuestion();
-                StateHasChanged();
-            });
-        }
+                await InvokeAsync(async () =>
+                {
+                    await NextQuestion();
+                    StateHasChanged();
+                });
+            }
         }
         catch (TaskCanceledException) { }
     }
