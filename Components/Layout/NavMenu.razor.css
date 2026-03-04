@@ -72,13 +72,13 @@
     }
 
 .nav-item ::deep a.active {
-    background: linear-gradient(to right, #c84010, #8a1800);
+    background: linear-gradient(to right, var(--primary), var(--primary-dk));
     color: #fff5f0;
-    box-shadow: 0 2px 8px rgba(200,64,16,0.4);
+    box-shadow: 0 2px 8px var(--glow);
 }
 
 .nav-item ::deep .nav-link:hover {
-    background-color: rgba(200, 64, 16, 0.15);
+    background-color: color-mix(in srgb, var(--primary) 15%, transparent);
     color: #f5e8e0;
 }
 

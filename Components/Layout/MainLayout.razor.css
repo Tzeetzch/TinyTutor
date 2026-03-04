@@ -37,9 +37,26 @@ main {
         text-overflow: ellipsis;
     }
 
-@media (max-width: 640.98px) {
+.mobile-brand {
+    display: none;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #f5e8e0;
+    letter-spacing: 0.02em;
+}
+
+@media (max-width: 640px) {
+    .sidebar { display: none; }
+
     .top-row {
         justify-content: space-between;
+    }
+
+    .mobile-brand { display: block; }
+
+    /* Push content up above the bottom nav */
+    article {
+        padding-bottom: 5.5rem !important;
     }
 
     .top-row ::deep a, .top-row ::deep .btn-link {

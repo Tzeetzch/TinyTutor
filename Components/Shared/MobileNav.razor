@@ -1,0 +1,16 @@
+@rendermode InteractiveServer
+@inject LanguageService Lang
+@implements IDisposable
+
+<nav class="mobile-bottom-nav">
+    <NavLink class="mob-nav-item" href="" Match="NavLinkMatch.All">
+        <span class="mob-nav-icon">🏠</span>
+        <span class="mob-nav-label">@Strings.NavHome(Lang.Current)</span>
+    </NavLink>
+</nav>
+
+@code {
+    protected override void OnInitialized() => Lang.OnChange += OnLanguageChanged;
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Lang.OnChange -= OnLanguageChanged;
+}

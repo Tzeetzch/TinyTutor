@@ -6,26 +6,46 @@
 
 <PageTitle>@Strings.NavQuiz(Lang.Current) – TinyTutor</PageTitle>
 
-<PageHeader Title="@Strings.QuizTitle(Lang.Current)" />
-
-@* ── Mode toggles ─────────────────────────────────────────── *@
-<div class="quiz-modes">
-    @foreach (var m in AllModes)
-    {
-        var mode = m;
-        var enabled = enabledModes.Contains(mode);
-        var isOnly  = enabledModes.Count == 1 && enabled;
-        <button class="mode-btn @(enabled ? "mode-active" : "mode-off") @(isOnly ? "mode-only" : "")"
-                @onclick="() => ToggleMode(mode)"
-                disabled="@isOnly"
-                title="@(isOnly ? "At least one mode must stay on" : "")">
-            @ModeLabel(mode)
+<PageHeader Title="@Strings.QuizTitle(Lang.Current)">
+    <Action>
+        <button class="quiz-cfg-btn" @onclick="() => showSettings = !showSettings">
+            @(showSettings ? "✕" : "⚙️")
         </button>
-    }
-</div>
+    </Action>
+</PageHeader>
 
-@* ── Current mode badge ───────────────────────────────────── *@
-<div class="current-mode-label">@ModeLabel(currentMode)</div>
+<span class="current-mode-label">@ModeLabel(currentMode)</span>
+
+@* ── Collapsible config (modes + auto-advance) ─────────────── *@
+<div class="quiz-config @(showSettings ? "cfg-open" : "")">
+    <div class="quiz-modes">
+        @foreach (var m in AllModes)
+        {
+            var mode = m;
+            var enabled = enabledModes.Contains(mode);
+            var isOnly  = enabledModes.Count == 1 && enabled;
+            <button class="mode-btn @(enabled ? "mode-active" : "mode-off") @(isOnly ? "mode-only" : "")"
+                    @onclick="() => ToggleMode(mode)"
+                    disabled="@isOnly">
+                @ModeLabel(mode)
+            </button>
+        }
+    </div>
+
+    <div class="quiz-settings">
+        <span class="settings-label">@Strings.QuizAutoNext(Lang.Current)</span>
+        <div class="delay-options">
+            @foreach (var (label, secs) in DelayOptions)
+            {
+                var s = secs;
+                <button class="delay-btn @(autoAdvanceSeconds == s ? "delay-active" : "")"
+                        @onclick="() => SetDelay(s)">
+                    @label
+                </button>
+            }
+        </div>
+    </div>
+</div>
 
 @* ── Question ─────────────────────────────────────────────── *@
 <div class="quiz-question">
@@ -115,20 +135,6 @@
     }
 </div>
 
-@* ── Auto-advance settings ────────────────────────────────── *@
-<div class="quiz-settings">
-    <span class="settings-label">@Strings.QuizAutoNext(Lang.Current)</span>
-    <div class="delay-options">
-        @foreach (var (label, secs) in DelayOptions)
-        {
-            var s = secs;
-            <button class="delay-btn @(autoAdvanceSeconds == s ? "delay-active" : "")"
-                    @onclick="() => SetDelay(s)">
-                @label
-            </button>
-        }
-    </div>
-</div>
 
 @code {
     private enum QuizMode { Word, Before, After, Between, Count }
@@ -151,6 +157,9 @@
     private int score;
     private int asked;
     private int streak;
+
+    // ── UI state ───────────────────────────────────────────
+    private bool showSettings;
 
     // ── Auto-advance ───────────────────────────────────────
     private int autoAdvanceSeconds = 3;
@@ -283,6 +292,7 @@
     // ── Answer handling ────────────────────────────────────
     async Task Answer(int choice)
     {
+        await JS.InvokeVoidAsync("blurActive");
         if (choice == targetNumber)
         {
             solved = true;

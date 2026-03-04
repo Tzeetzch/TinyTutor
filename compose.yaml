@@ -1,0 +1,8 @@
+services:
+  tinytutor:
+    build: .
+    ports:
+      - "5012:8080"   # change 5012 to whatever host port you want
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
