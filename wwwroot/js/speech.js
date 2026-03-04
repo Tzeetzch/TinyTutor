@@ -1,8 +1,8 @@
-// Blazor Server calls JS via SignalR, not directly in a user gesture.
+// iOS requires speechSynthesis.speak() to be called in a user gesture context.
 // A silent speak() on the first pointerdown unlocks the speech engine
-// so subsequent InvokeVoidAsync calls are allowed by the browser.
+// so subsequent calls (which go through the WASM async dispatch) are allowed.
 document.addEventListener('pointerdown', function () {
-    const silent = new SpeechSynthesisUtterance('');
+    const silent = new SpeechSynthesisUtterance(' ');
     silent.volume = 0;
     window.speechSynthesis.speak(silent);
 }, { once: true });

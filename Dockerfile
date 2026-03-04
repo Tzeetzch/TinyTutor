@@ -9,11 +9,8 @@ COPY . .
 RUN dotnet publish -c Release -o /app/publish --no-restore
 
 # ── Runtime stage ─────────────────────────────────────────────
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
-WORKDIR /app
-
-COPY --from=build /app/publish .
+FROM docker.io/nginx:alpine
+COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 8080
-
-ENTRYPOINT ["dotnet", "TinyTutor.dll"]

@@ -93,24 +93,3 @@ main {
         padding-right: 1.5rem !important;
     }
 }
-
-#blazor-error-ui {
-    background: #3d0808;
-    border-top: 1px solid #c84010;
-    bottom: 0;
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.5);
-    display: none;
-    left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
-    color: #f5e8e0;
-}
-
-    #blazor-error-ui .dismiss {
-        cursor: pointer;
-        position: absolute;
-        right: 0.75rem;
-        top: 0.5rem;
-    }
