@@ -1,0 +1,42 @@
+@rendermode InteractiveServer
+@inject LanguageService Lang
+@implements IDisposable
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">TinyTutor</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                🏠 @Strings.NavHome(Lang.Current)
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="chart">
+                🔢 @Strings.NavChart(Lang.Current)
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="flashcards">
+                🃏 @Strings.NavFlashCards(Lang.Current)
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="quiz">
+                ⭐ @Strings.NavQuiz(Lang.Current)
+            </NavLink>
+        </div>
+    </nav>
+</div>
+
+@code {
+    protected override void OnInitialized() => Lang.OnChange += OnLanguageChanged;
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Lang.OnChange -= OnLanguageChanged;
+}

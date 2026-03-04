@@ -1,0 +1,22 @@
+## .NET / Blazor
+bin/
+obj/
+*.user
+*.suo
+.vs/
+*.swp
+
+## Rider / JetBrains
+.idea/
+
+## VS Code
+.vscode/
+
+## Published output
+publish/
+out/
+
+## Secrets / environment
+*.env
+appsettings.*.json
+!appsettings.json

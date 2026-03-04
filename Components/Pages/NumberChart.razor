@@ -1,0 +1,42 @@
+@page "/chart"
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject LanguageService Lang
+@implements IDisposable
+
+<PageTitle>@Strings.NavChart(Lang.Current) – TinyTutor</PageTitle>
+
+<PageHeader Title="@Strings.ChartTitle(Lang.Current)"
+            Subtitle="@Strings.ChartSubtitle(Lang.Current)" />
+
+<div class="number-grid">
+    @for (int i = 1; i <= 30; i++)
+    {
+        var num = i;
+        var group = (num - 1) / 10;
+        <button class="number-cell group-@group @(lastClicked == num ? "cell-active" : "")"
+                @onclick="() => Speak(num)">
+            @num
+        </button>
+    }
+</div>
+
+@if (lastClicked > 0)
+{
+    <p class="chart-spoken-word">@NumberHelper.GetDisplayWord(lastClicked, Lang.Current)</p>
+}
+
+@code {
+    int lastClicked = 0;
+
+    protected override void OnInitialized() => Lang.OnChange += OnLanguageChanged;
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    async Task Speak(int number)
+    {
+        lastClicked = number;
+        await JS.InvokeVoidAsync("speakNumber", NumberHelper.GetSpeechWord(number, Lang.Current), Lang.LangCode);
+    }
+
+    public void Dispose() => Lang.OnChange -= OnLanguageChanged;
+}

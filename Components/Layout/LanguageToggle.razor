@@ -1,0 +1,7 @@
+@rendermode InteractiveServer
+@inject LanguageService Lang
+
+<div class="lang-toggle">
+    <button class="lang-btn @(Lang.IsEnglish ? "lang-active" : "")" @onclick='() => Lang.Set("en")'>EN</button>
+    <button class="lang-btn @(!Lang.IsEnglish ? "lang-active" : "")" @onclick='() => Lang.Set("nl")'>NL</button>
+</div>

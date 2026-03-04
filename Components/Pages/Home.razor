@@ -1,0 +1,35 @@
+@page "/"
+@rendermode InteractiveServer
+@inject LanguageService Lang
+@implements IDisposable
+
+<PageTitle>TinyTutor</PageTitle>
+
+<div class="home-hero">
+    <h1>@Strings.HomeWelcome(Lang.Current)</h1>
+    <p class="home-subtitle">@Strings.HomeSubtitle(Lang.Current)</p>
+</div>
+
+<div class="activity-cards">
+    <a href="/chart" class="activity-card card-blue">
+        <div class="activity-icon">🔢</div>
+        <h2>@Strings.NavChart(Lang.Current)</h2>
+        <p>@Strings.HomeChartDesc(Lang.Current)</p>
+    </a>
+    <a href="/flashcards" class="activity-card card-green">
+        <div class="activity-icon">🃏</div>
+        <h2>@Strings.NavFlashCards(Lang.Current)</h2>
+        <p>@Strings.HomeCardsDesc(Lang.Current)</p>
+    </a>
+    <a href="/quiz" class="activity-card card-orange">
+        <div class="activity-icon">⭐</div>
+        <h2>@Strings.NavQuiz(Lang.Current)</h2>
+        <p>@Strings.HomeQuizDesc(Lang.Current)</p>
+    </a>
+</div>
+
+@code {
+    protected override void OnInitialized() => Lang.OnChange += OnLanguageChanged;
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Lang.OnChange -= OnLanguageChanged;
+}

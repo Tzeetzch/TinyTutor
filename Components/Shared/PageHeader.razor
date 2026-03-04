@@ -1,0 +1,12 @@
+<div class="page-header">
+    <h1>@Title</h1>
+    @if (!string.IsNullOrEmpty(Subtitle))
+    {
+        <p class="page-subtitle">@Subtitle</p>
+    }
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Subtitle { get; set; } = "";
+}

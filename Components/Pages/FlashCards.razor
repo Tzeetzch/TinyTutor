@@ -1,0 +1,66 @@
+@page "/flashcards"
+@rendermode InteractiveServer
+@inject IJSRuntime JS
+@inject LanguageService Lang
+@implements IDisposable
+
+<PageTitle>@Strings.NavFlashCards(Lang.Current) – TinyTutor</PageTitle>
+
+<PageHeader Title="@Strings.CardsTitle(Lang.Current)"
+            Subtitle="@Strings.CardsSubtitle(Lang.Current)" />
+
+<div class="flashcard-wrap">
+    <div class="flashcard">
+        <div class="flashcard-number">@currentNumber</div>
+        @if (revealed)
+        {
+            <div class="flashcard-word">@NumberHelper.GetDisplayWord(currentNumber, Lang.Current)</div>
+        }
+    </div>
+</div>
+
+<div class="flashcard-buttons">
+    <TtButton Variant="success" OnClick="HearIt">@Strings.CardsHearIt(Lang.Current)</TtButton>
+    <TtButton Variant="primary" OnClick="Next">@Strings.CardsNext(Lang.Current)</TtButton>
+</div>
+
+<div class="streak-display">
+    @Strings.CardsStreak(Lang.Current) @streak
+</div>
+
+@code {
+    private static readonly Random Rng = new();
+    private List<int> deck = [];
+    private int deckIndex = 0;
+    private int currentNumber = 1;
+    private bool revealed = false;
+    private int streak = 0;
+
+    protected override void OnInitialized()
+    {
+        Lang.OnChange += OnLanguageChanged;
+        deck = Enumerable.Range(1, 30).OrderBy(_ => Rng.Next()).ToList();
+        currentNumber = deck[0];
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    async Task HearIt()
+    {
+        if (!revealed) streak++;
+        revealed = true;
+        await JS.InvokeVoidAsync("speakNumber", NumberHelper.GetSpeechWord(currentNumber, Lang.Current), Lang.LangCode);
+    }
+
+    void Next()
+    {
+        if (!revealed) streak = 0;
+        deckIndex = (deckIndex + 1) % 30;
+        if (deckIndex == 0)
+            deck = deck.OrderBy(_ => Rng.Next()).ToList();
+        currentNumber = deck[deckIndex];
+        revealed = false;
+    }
+
+    public void Dispose() => Lang.OnChange -= OnLanguageChanged;
+}
