@@ -1,0 +1,30 @@
+@inject StarService Stars
+@implements IDisposable
+
+<a class="star-badge" href="shop" title="@Strings.NavShop(Lang.Current)">
+    <span class="star-badge-icon">⭐</span>
+    <span class="star-badge-count">@Stars.Count</span>
+</a>
+
+@code {
+    [Inject] private LanguageService Lang { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        Stars.OnChange += OnChanged;
+        Lang.OnChange += OnChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await Stars.EnsureLoadedAsync();
+    }
+
+    private void OnChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Stars.OnChange -= OnChanged;
+        Lang.OnChange -= OnChanged;
+    }
+}

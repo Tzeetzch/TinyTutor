@@ -1,0 +1,20 @@
+.star-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--surface);
+    border: 1px solid var(--btn-border);
+    border-radius: 20px;
+    padding: 0.2rem 0.7rem 0.2rem 0.55rem;
+    text-decoration: none;
+    color: var(--text);
+    font-weight: 800;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 var(--btn-shine);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.star-badge:hover { transform: scale(1.06); box-shadow: 0 4px 12px var(--glow); }
+
+.star-badge-icon  { font-size: 1.2rem; line-height: 1; }
+.star-badge-count { min-width: 1.2em; text-align: left; }

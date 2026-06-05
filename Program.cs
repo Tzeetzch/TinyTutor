@@ -8,5 +8,6 @@ builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddSingleton<LanguageService>();
+builder.Services.AddSingleton<StarService>();
 
 await builder.Build().RunAsync();

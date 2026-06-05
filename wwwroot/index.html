@@ -50,6 +50,8 @@
         };
         window.getSavedLang  = function () { return localStorage.getItem('tinytutor-lang'); };
         window.saveLang      = function (lang) { localStorage.setItem('tinytutor-lang', lang); };
+        window.getStars      = function () { var v = localStorage.getItem('tinytutor-stars'); return v == null ? null : parseInt(v, 10); };
+        window.saveStars     = function (n) { localStorage.setItem('tinytutor-stars', n); };
         window.blurActive    = function () { if (document.activeElement) document.activeElement.blur(); };
         (function () {
             var t = localStorage.getItem('tinytutor-theme'); if (!t) return;

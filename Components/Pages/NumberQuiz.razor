@@ -1,6 +1,7 @@
 @page "/quiz"
 @inject IJSRuntime JS
 @inject LanguageService Lang
+@inject StarService Stars
 @implements IDisposable
 
 <PageTitle>@Strings.NavQuiz(Lang.Current) – TinyTutor</PageTitle>
@@ -168,6 +169,7 @@
         <div class="quiz-feedback feedback-correct">
             @Strings.QuizCorrect(Lang.Current)
             @NumberHelper.GetDisplayWord(targetNumber, Lang.Current)!
+            <span class="quiz-stars-earned">+@lastStarsEarned ⭐</span>
         </div>
 
         <div class="quiz-next-row">
@@ -211,6 +213,7 @@
     private int score;
     private int asked;
     private int streak;
+    private int lastStarsEarned;
 
     // ── UI state ───────────────────────────────────────────
     private bool showSettings;
@@ -383,6 +386,8 @@ questionNum2),
             solved = true;
             asked++;
             if (wrongAttempts.Count == 0) { score++; streak++; }
+            lastStarsEarned = wrongAttempts.Count == 0 ? 2 : 1;
+            await Stars.AddAsync(lastStarsEarned);
             var feedback = Strings.SpeakCorrectFeedback(Lang.Current, wrongAttempts.Count,
 streak);
             await JS.InvokeVoidAsync("speakNumber",

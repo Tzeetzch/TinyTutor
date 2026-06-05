@@ -1,0 +1,71 @@
+/* ── Balance ── */
+.shop-balance {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 1.25rem;
+}
+.shop-balance-stars { color: #ffd24a; font-weight: 900; }
+
+/* ── Shop grid ── */
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.8rem;
+    max-width: 520px;
+}
+
+.shop-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    background: linear-gradient(to bottom, var(--surface-2), var(--surface));
+    border: 1px solid var(--btn-border);
+    border-radius: 14px;
+    padding: 0.9rem 0.4rem;
+    cursor: pointer;
+    color: var(--text);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4), inset 0 1px 0 var(--btn-shine);
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+.shop-card:hover { transform: scale(1.05); box-shadow: 0 4px 14px var(--glow); }
+
+.shop-emoji { font-size: 2.6rem; line-height: 1; }
+.shop-name  { font-size: 0.8rem;  font-weight: 600; color: var(--text-muted); }
+.shop-cost  { font-size: 0.95rem; font-weight: 800; color: #ffd24a; }
+
+.shop-card-locked { opacity: 0.5; }
+
+/* ── Fly-across animation ── */
+.critter-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.critter { position: absolute; left: 0; will-change: transform; }
+
+.c-walk  { bottom: 12vh; animation: crossX 3s linear forwards; }
+.c-float { top: 28vh;    animation: crossX 3.2s linear forwards; }
+.c-fly   { bottom: 6vh;  animation: crossFly 3s ease-in forwards; }
+
+@keyframes crossX   { from { transform: translateX(-22vw); }        to { transform: translateX(122vw); } }
+@keyframes crossFly { from { transform: translate(-22vw, 0); }      to { transform: translate(122vw, -70vh); } }
+
+.critter-inner { display: inline-block; font-size: 5rem; line-height: 1; }
+
+.c-walk  .critter-inner { animation: critter-bob 0.5s ease-in-out infinite; }
+.c-float .critter-inner { animation: critter-bob 1.4s ease-in-out infinite; }
+.c-fly   .critter-inner { animation: critter-wobble 0.9s ease-in-out infinite; }
+
+@keyframes critter-bob    { 0%, 100% { transform: translateY(0); }       50% { transform: translateY(-22px); } }
+@keyframes critter-wobble { 0%, 100% { transform: rotate(-12deg); }      50% { transform: rotate(12deg); } }
+
+@media (max-width: 640px) {
+    .shop-grid  { grid-template-columns: repeat(3, 1fr); max-width: 100%; }
+    .shop-emoji { font-size: 2.2rem; }
+    .critter-inner { font-size: 3.6rem; }
+}

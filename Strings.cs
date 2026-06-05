@@ -10,6 +10,7 @@ public static class Strings
     public static string NavChart(string lang)      => T(lang, "Number Chart", "Getallenkaart");
     public static string NavFlashCards(string lang) => T(lang, "Flash Cards",  "Flitskaarten");
     public static string NavQuiz(string lang)       => T(lang, "Number Quiz",  "Getallenquiz");
+    public static string NavShop(string lang)       => T(lang, "Star Shop",    "Sterrenwinkel");
 
     // ── Home page ─────────────────────────────────────────
     public static string HomeWelcome(string lang)   => T(lang, "Welcome to TinyTutor!",                      "Welkom bij TinyTutor!");
@@ -17,6 +18,7 @@ public static class Strings
     public static string HomeChartDesc(string lang) => T(lang, "See and hear all numbers 1–50",              "Zie en hoor alle getallen 1–50");
     public static string HomeCardsDesc(string lang) => T(lang, "Practise one number at a time",              "Oefen één getal tegelijk");
     public static string HomeQuizDesc(string lang)  => T(lang, "Names, counting, sums and bonds!",            "Namen, tellen, sommen en splitsen!");
+    public static string HomeShopDesc(string lang)  => T(lang, "Spend your stars on a fun show!",             "Geef je sterren uit aan een leuke show!");
 
     // ── Number Chart ──────────────────────────────────────
     public static string ChartTitle(string lang)    => T(lang, "Number Chart",               "Getallenkaart");
@@ -29,6 +31,14 @@ public static class Strings
     public static string CardsHearIt(string lang)   => T(lang, "🔊 Hear It!",    "🔊 Hoor het!");
     public static string CardsNext(string lang)     => T(lang, "Next ➡️",        "Volgende ➡️");
     public static string CardsStreak(string lang)   => T(lang, "🔥 Streak:",     "🔥 Reeks:");
+
+    // ── Star Shop ─────────────────────────────────────────
+    public static string ShopTitle(string lang)    => T(lang, "Star Shop",                              "Sterrenwinkel");
+    public static string ShopSubtitle(string lang) => T(lang, "Tap a friend to spend your stars and watch the show!",
+                                                              "Tik op een vriendje om je sterren uit te geven en kijk!");
+    public static string ShopYouHave(string lang)  => T(lang, "You have",                               "Jij hebt");
+    public static string ShopNeedMore(string lang) => T(lang, "You need more stars! Answer some questions to earn them.",
+                                                              "Je hebt meer sterren nodig! Beantwoord vragen om ze te verdienen.");
 
     // ── Number Quiz — mode tabs ───────────────────────────
     public static string QuizTitle(string lang)       => T(lang, "Number Quiz",  "Getallenquiz");

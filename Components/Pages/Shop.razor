@@ -1,0 +1,100 @@
+@page "/shop"
+@inject IJSRuntime JS
+@inject LanguageService Lang
+@inject StarService Stars
+@implements IDisposable
+
+<PageTitle>@Strings.NavShop(Lang.Current) – TinyTutor</PageTitle>
+
+<PageHeader Title="@Strings.ShopTitle(Lang.Current)"
+            Subtitle="@Strings.ShopSubtitle(Lang.Current)" />
+
+<p class="shop-balance">
+    @Strings.ShopYouHave(Lang.Current)
+    <span class="shop-balance-stars">@Stars.Count ⭐</span>
+</p>
+
+<div class="shop-grid">
+    @foreach (var c in Catalog)
+    {
+        var item = c;
+        var afford = Stars.Count >= item.Cost;
+        <button class="shop-card @(afford ? "" : "shop-card-locked")"
+                @onclick="() => Buy(item)">
+            <span class="shop-emoji">@item.Emoji</span>
+            <span class="shop-name">@(Lang.IsEnglish ? item.NameEn : item.NameNl)</span>
+            <span class="shop-cost">@item.Cost ⭐</span>
+        </button>
+    }
+</div>
+
+@if (flying is not null)
+{
+    <div class="critter-layer">
+        <div @key="animKey" class="critter c-@flying.Motion">
+            <span class="critter-inner">@flying.Emoji</span>
+        </div>
+    </div>
+}
+
+@code {
+    private record Critter(string Emoji, string NameEn, string NameNl, int Cost, string Motion);
+
+    private static readonly Critter[] Catalog =
+    [
+        new("⭐", "Shooting Star", "Vallende ster", 3,  "fly"),
+        new("🐱", "Cat",           "Poes",          4,  "walk"),
+        new("🐠", "Fish",          "Vis",           5,  "float"),
+        new("🦖", "Dino",          "Dino",          6,  "walk"),
+        new("🚀", "Rocket",        "Raket",         7,  "fly"),
+        new("🌈", "Rainbow",       "Regenboog",     8,  "float"),
+        new("🦄", "Unicorn",       "Eenhoorn",      10, "walk"),
+        new("🐉", "Dragon",        "Draak",         12, "fly"),
+    ];
+
+    private Critter? flying;
+    private int animKey;
+    private bool _disposed;
+
+    protected override void OnInitialized()
+    {
+        Lang.OnChange += OnChanged;
+        Stars.OnChange += OnChanged;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await Stars.EnsureLoadedAsync();
+    }
+
+    private void OnChanged() => InvokeAsync(StateHasChanged);
+
+    private async Task Buy(Critter c)
+    {
+        if (!await Stars.TrySpendAsync(c.Cost))
+        {
+            await JS.InvokeVoidAsync("speakNumber", Strings.ShopNeedMore(Lang.Current), Lang.LangCode);
+            return;
+        }
+
+        // @key change restarts the CSS animation even on rapid repeat taps.
+        animKey++;
+        flying = c;
+        var myKey = animKey;
+        StateHasChanged();
+
+        await Task.Delay(3300);
+        if (!_disposed && animKey == myKey)
+        {
+            flying = null;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        _disposed = true;
+        Lang.OnChange -= OnChanged;
+        Stars.OnChange -= OnChanged;
+    }
+}
