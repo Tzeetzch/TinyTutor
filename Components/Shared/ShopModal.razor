@@ -134,29 +134,29 @@
 
     private static readonly Critter[] Catalog =
     [
-        // Quick wins — single critters
-        new("⭐", "Shooting Star", "Vallende ster", 3,  Show.Fly),
-        new("🐱", "Cat",           "Poes",          4,  Show.Walk),
-        new("🐠", "Fish",          "Vis",           5,  Show.Float),
-        new("🦖", "Dino",          "Dino",          6,  Show.Walk),
-        new("🚀", "Rocket",        "Raket",         7,  Show.Fly),
-        new("🌈", "Rainbow",       "Regenboog",     8,  Show.Float),
-        new("🦄", "Unicorn",       "Eenhoorn",      10, Show.Walk),
-        new("🐲", "Dragon",        "Draak",         12, Show.Fly),
+        // Quick wins — single critters (1–2 right answers)
+        new("⭐", "Shooting Star", "Vallende ster", 1,  Show.Fly),
+        new("🐱", "Cat",           "Poes",          1,  Show.Walk),
+        new("🐠", "Fish",          "Vis",           2,  Show.Float),
+        new("🦖", "Dino",          "Dino",          2,  Show.Walk),
+        new("🚀", "Rocket",        "Raket",         3,  Show.Fly),
+        new("🌈", "Rainbow",       "Regenboog",     3,  Show.Float),
+        new("🦄", "Unicorn",       "Eenhoorn",      4,  Show.Walk),
+        new("🐲", "Dragon",        "Draak",         5,  Show.Fly),
         // Premium — the big emoji shows
-        new("🎉", "Confetti",      "Confetti",      15, Show.Confetti,  Premium: true),
-        new("🚀", "Rocket Launch", "Raketlancering",20, Show.Rocket,    Premium: true),
-        new("🎆", "Fireworks",     "Vuurwerk",      28, Show.Fireworks, Premium: true),
-        new("🐉", "Dragon Fire",   "Drakenvuur",    35, Show.Dragon,    Premium: true),
-        new("🦄", "Rainbow Ride",  "Regenboogrit",  45, Show.Rainbow,   Premium: true),
-        new("🐾", "Animal Parade", "Dierenparade",  60, Show.Parade,    Premium: true),
+        new("🎉", "Confetti",      "Confetti",      6,  Show.Confetti,  Premium: true),
+        new("🚀", "Rocket Launch", "Raketlancering",8,  Show.Rocket,    Premium: true),
+        new("🎆", "Fireworks",     "Vuurwerk",      10, Show.Fireworks, Premium: true),
+        new("🐉", "Dragon Fire",   "Drakenvuur",    12, Show.Dragon,    Premium: true),
+        new("🦄", "Rainbow Ride",  "Regenboogrit",  15, Show.Rainbow,   Premium: true),
+        new("🐾", "Animal Parade", "Dierenparade",  18, Show.Parade,    Premium: true),
         // Deluxe — canvas particle light shows (the top tier)
-        new("🎊", "Confetti Storm",   "Confettistorm",    70,  Deluxe: true, Fx: "confetti"),
-        new("🌈", "Rainbow Fountain", "Regenboogfontein", 85,  Deluxe: true, Fx: "rainbow"),
-        new("🌠", "Meteor Shower",    "Sterrenregen",     100, Deluxe: true, Fx: "meteor"),
-        new("🔥", "Fire Tornado",     "Vuurtornado",      120, Deluxe: true, Fx: "fire"),
-        new("🌌", "Galaxy",           "Melkweg",          140, Deluxe: true, Fx: "galaxy"),
-        new("🎆", "Mega Fireworks",   "Groot Vuurwerk",   160, Deluxe: true, Fx: "fireworks"),
+        new("🎊", "Confetti Storm",   "Confettistorm",    20, Deluxe: true, Fx: "confetti"),
+        new("🌈", "Rainbow Fountain", "Regenboogfontein", 24, Deluxe: true, Fx: "rainbow"),
+        new("🌠", "Meteor Shower",    "Sterrenregen",     28, Deluxe: true, Fx: "meteor"),
+        new("🔥", "Fire Tornado",     "Vuurtornado",      32, Deluxe: true, Fx: "fire"),
+        new("🌌", "Galaxy",           "Melkweg",          40, Deluxe: true, Fx: "galaxy"),
+        new("🎆", "Mega Fireworks",   "Groot Vuurwerk",   50, Deluxe: true, Fx: "fireworks"),
     ];
 
     private static readonly Random Rng = new();
