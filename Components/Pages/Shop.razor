@@ -19,7 +19,7 @@
     {
         var item = c;
         var afford = Stars.Count >= item.Cost;
-        <button class="shop-card @(afford ? "" : "shop-card-locked")"
+        <button class="shop-card @(item.Premium ? "shop-card-premium" : "") @(afford ? "" : "shop-card-locked")"
                 @onclick="() => Buy(item)">
             <span class="shop-emoji">@item.Emoji</span>
             <span class="shop-name">@(Lang.IsEnglish ? item.NameEn : item.NameNl)</span>
@@ -31,30 +31,139 @@
 @if (flying is not null)
 {
     <div class="critter-layer">
-        <div @key="animKey" class="critter c-@flying.Motion">
-            <span class="critter-inner">@flying.Emoji</span>
-        </div>
+        @switch (flying.Anim)
+        {
+            case Show.Walk:
+                <div @key="animKey" class="critter c-walk"><span class="critter-inner">@flying.Emoji</span></div>
+                break;
+            case Show.Float:
+                <div @key="animKey" class="critter c-float"><span class="critter-inner">@flying.Emoji</span></div>
+                break;
+            case Show.Fly:
+                <div @key="animKey" class="critter c-fly"><span class="critter-inner">@flying.Emoji</span></div>
+                break;
+
+            case Show.Confetti:
+                <div @key="animKey" class="confetti-scene">
+                    @foreach (var cf in confetti)
+                    {
+                        <span class="confetto"
+                              style="left:@(cf.Left)%;--drift:@(cf.Drift)px;--spin:@(cf.Spin)deg;--dur:@N(cf.Dur)s;--delay:@N(cf.Delay)s;background:@cf.Color;"></span>
+                    }
+                </div>
+                break;
+
+            case Show.Fireworks:
+                <div @key="animKey" class="fireworks-scene">
+                    @foreach (var bu in bursts)
+                    {
+                        <div class="burst" style="left:@(bu.Left)%;top:@(bu.Top)%;">
+                            @foreach (var sp in bu.Sparks)
+                            {
+                                <span class="spark"
+                                      style="--tx:@(sp.Tx)px;--ty:@(sp.Ty)px;--delay:@N(bu.Delay)s;--c:@bu.Color;"></span>
+                            }
+                        </div>
+                    }
+                </div>
+                break;
+
+            case Show.Rocket:
+                <div @key="animKey" class="rocket-scene">
+                    <span class="moon">🌙</span>
+                    @foreach (var d in trail)
+                    {
+                        <span class="puff" style="--delay:@N(d)s;">✨</span>
+                    }
+                    <span class="rocket">🚀</span>
+                </div>
+                break;
+
+            case Show.Dragon:
+                <div @key="animKey" class="dragon-scene">
+                    @foreach (var d in trail)
+                    {
+                        <span class="flame" style="--delay:@N(d)s;">🔥</span>
+                    }
+                    <span class="dragon">🐉</span>
+                </div>
+                break;
+
+            case Show.Rainbow:
+                <div @key="animKey" class="rainbow-scene">
+                    <div class="rainbow">
+                        @{ var bands = new[] { "#ff4d4d", "#ff994d", "#ffe14d", "#4dff77", "#4dd2ff", "#4d6dff", "#a64dff" }; }
+                        @for (int i = 0; i < bands.Length; i++)
+                        {
+                            var k = bands.Length - 1 - i;
+                            <div class="band" style="width:@(150 + k * 52)px;height:@(78 + k * 26)px;border-color:@bands[i];"></div>
+                        }
+                    </div>
+                    @foreach (var d in trail)
+                    {
+                        <span class="uni-spark" style="--delay:@N(d)s;">✨</span>
+                    }
+                    <span class="uni">🦄</span>
+                </div>
+                break;
+
+            case Show.Parade:
+                <div @key="animKey" class="parade-scene">
+                    @{ var animals = new[] { "🐘", "🦒", "🦁", "🐵", "🐧" }; }
+                    @for (int i = 0; i < animals.Length; i++)
+                    {
+                        <span class="parade-animal" style="--delay:@N(i * 0.5)s;">
+                            <span class="pa-inner">@animals[i]</span>
+                        </span>
+                    }
+                </div>
+                break;
+        }
     </div>
 }
 
 @code {
-    private record Critter(string Emoji, string NameEn, string NameNl, int Cost, string Motion);
+    private enum Show { Walk, Float, Fly, Confetti, Fireworks, Rocket, Dragon, Rainbow, Parade }
+
+    private record Critter(string Emoji, string NameEn, string NameNl, int Cost, Show Anim, bool Premium = false);
 
     private static readonly Critter[] Catalog =
     [
-        new("⭐", "Shooting Star", "Vallende ster", 3,  "fly"),
-        new("🐱", "Cat",           "Poes",          4,  "walk"),
-        new("🐠", "Fish",          "Vis",           5,  "float"),
-        new("🦖", "Dino",          "Dino",          6,  "walk"),
-        new("🚀", "Rocket",        "Raket",         7,  "fly"),
-        new("🌈", "Rainbow",       "Regenboog",     8,  "float"),
-        new("🦄", "Unicorn",       "Eenhoorn",      10, "walk"),
-        new("🐉", "Dragon",        "Draak",         12, "fly"),
+        // Quick wins — single critters
+        new("⭐", "Shooting Star", "Vallende ster", 3,  Show.Fly),
+        new("🐱", "Cat",           "Poes",          4,  Show.Walk),
+        new("🐠", "Fish",          "Vis",           5,  Show.Float),
+        new("🦖", "Dino",          "Dino",          6,  Show.Walk),
+        new("🚀", "Rocket",        "Raket",         7,  Show.Fly),
+        new("🌈", "Rainbow",       "Regenboog",     8,  Show.Float),
+        new("🦄", "Unicorn",       "Eenhoorn",      10, Show.Walk),
+        new("🐲", "Dragon",        "Draak",         12, Show.Fly),
+        // Premium — the big shows
+        new("🎉", "Confetti",      "Confetti",      15, Show.Confetti,  Premium: true),
+        new("🚀", "Rocket Launch", "Raketlancering",20, Show.Rocket,    Premium: true),
+        new("🎆", "Fireworks",     "Vuurwerk",      28, Show.Fireworks, Premium: true),
+        new("🐉", "Dragon Fire",   "Drakenvuur",    35, Show.Dragon,    Premium: true),
+        new("🦄", "Rainbow Ride",  "Regenboogrit",  45, Show.Rainbow,   Premium: true),
+        new("🐾", "Animal Parade", "Dierenparade",  60, Show.Parade,    Premium: true),
     ];
+
+    private static readonly Random Rng = new();
+    private static readonly string[] PartyColors =
+        ["#ff5050", "#ffd24a", "#4dd2ff", "#9b5cff", "#5cff8f", "#ff7ad0", "#ffffff"];
+
+    private record Confetto(int Left, int Drift, int Spin, double Dur, double Delay, string Color);
+    private record Spark(int Tx, int Ty);
+    private record Burst(int Left, int Top, double Delay, string Color, List<Spark> Sparks);
+
+    private List<Confetto> confetti = [];
+    private List<Burst> bursts = [];
+    private List<double> trail = [];
 
     private Critter? flying;
     private int animKey;
     private bool _disposed;
+
+    private static string N(double d) => d.ToString(System.Globalization.CultureInfo.InvariantCulture);
 
     protected override void OnInitialized()
     {
@@ -77,19 +186,77 @@
             return;
         }
 
+        BuildScene(c.Anim);
+
         // @key change restarts the CSS animation even on rapid repeat taps.
         animKey++;
         flying = c;
         var myKey = animKey;
         StateHasChanged();
 
-        await Task.Delay(3300);
+        await Task.Delay(DurationOf(c.Anim));
         if (!_disposed && animKey == myKey)
         {
             flying = null;
             StateHasChanged();
         }
     }
+
+    private void BuildScene(Show s)
+    {
+        switch (s)
+        {
+            case Show.Confetti:
+                confetti = [];
+                for (int i = 0; i < 70; i++)
+                    confetti.Add(new Confetto(
+                        Rng.Next(0, 100), Rng.Next(-80, 80), Rng.Next(360, 1260),
+                        2.4 + Rng.NextDouble() * 1.8, Rng.NextDouble() * 1.6,
+                        PartyColors[Rng.Next(PartyColors.Length)]));
+                break;
+
+            case Show.Fireworks:
+                bursts = [];
+                for (int b = 0; b < 6; b++)
+                {
+                    var col = PartyColors[Rng.Next(PartyColors.Length)];
+                    var sparks = new List<Spark>();
+                    double radius = 70 + Rng.Next(50);
+                    const int sc = 16;
+                    for (int i = 0; i < sc; i++)
+                    {
+                        double ang = Math.PI * 2 * i / sc;
+                        sparks.Add(new Spark(
+                            (int)Math.Round(Math.Cos(ang) * radius),
+                            (int)Math.Round(Math.Sin(ang) * radius)));
+                    }
+                    bursts.Add(new Burst(12 + Rng.Next(76), 12 + Rng.Next(48), b * 0.55, col, sparks));
+                }
+                break;
+
+            case Show.Rocket:  trail = MakeTrail(9);  break;
+            case Show.Dragon:  trail = MakeTrail(10); break;
+            case Show.Rainbow: trail = MakeTrail(8);  break;
+        }
+    }
+
+    private static List<double> MakeTrail(int n)
+    {
+        var t = new List<double>();
+        for (int i = 0; i < n; i++) t.Add(0.08 * (i + 1));
+        return t;
+    }
+
+    private static int DurationOf(Show s) => s switch
+    {
+        Show.Confetti  => 4600,
+        Show.Fireworks => 4400,
+        Show.Rocket    => 3400,
+        Show.Dragon    => 3800,
+        Show.Rainbow   => 4600,
+        Show.Parade    => 5400,
+        _              => 3300
+    };
 
     public void Dispose()
     {

@@ -17,7 +17,11 @@ A playful, kid-friendly web app for learning the numbers **1–50** — by sight
   - **Make 10** — number bonds: how many more make ten
   
   Modes can be toggled on/off, with optional auto-advance (off / 2s / 3s / 5s), live scoring, and a 🔥 streak counter.
-- **🛒 Star Shop** — correct quiz answers earn ⭐ stars (bonus for first-try). Spend them in the shop to send a friend — 🦖 dino, 🌈 rainbow, 🦄 unicorn, 🚀 rocket… — flying across the screen. The balance is saved on the device, so kids save up for the pricier critters.
+- **🛒 Star Shop** — correct quiz answers earn ⭐ stars (bonus for first-try). Spend them on a show:
+  - **Cheap, quick wins** — a single friend (🦖 dino, 🐱 cat, 🚀 rocket…) walks, floats, or flies across the screen.
+  - **Premium spectacles** — layered animations worth saving up for: 🎉 confetti rain, 🎆 multi-burst fireworks, 🚀 a rocket launch to the moon with a sparkle trail, 🐉 a fire-breathing dragon, 🌈 a drawn rainbow with a galloping unicorn, and a 🐾 parade of animals.
+  
+  The balance is saved on the device, so kids save up for the pricier shows.
 - **🔊 Spoken feedback** — every number, question, and answer is read aloud using the browser's Web Speech API, with TTS-tuned Dutch pronunciations.
 - **🌍 Bilingual** — full English and Dutch (default) UI and speech, switchable on the fly.
 - **🎨 Themeable** — eight preset accent colors plus a custom color picker. Your choice and language are saved in `localStorage`.
