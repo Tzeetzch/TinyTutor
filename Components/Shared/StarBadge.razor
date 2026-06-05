@@ -1,10 +1,11 @@
 @inject StarService Stars
+@inject ShopState Shop
 @implements IDisposable
 
-<a class="star-badge" href="shop" title="@Strings.NavShop(Lang.Current)">
+<button class="star-badge" @onclick="Shop.Open" title="@Strings.NavShop(Lang.Current)">
     <span class="star-badge-icon">⭐</span>
     <span class="star-badge-count">@Stars.Count</span>
-</a>
+</button>
 
 @code {
     [Inject] private LanguageService Lang { get; set; } = default!;

@@ -19,8 +19,7 @@ public class StarService
     public async Task EnsureLoadedAsync()
     {
         if (Loaded) return;
-        var saved = await _js.InvokeAsync<int?>("getStars");
-        Count = saved ?? 0;
+        Count = await _js.InvokeAsync<int>("getStars");
         Loaded = true;
         OnChange?.Invoke();
     }

@@ -37,6 +37,7 @@ public static class Strings
     public static string ShopSubtitle(string lang) => T(lang, "Tap a friend to spend your stars and watch the show!",
                                                               "Tik op een vriendje om je sterren uit te geven en kijk!");
     public static string ShopYouHave(string lang)  => T(lang, "You have",                               "Jij hebt");
+    public static string ShopClose(string lang)    => T(lang, "Close",                                  "Sluiten");
     public static string ShopNeedMore(string lang) => T(lang, "You need more stars! Answer some questions to earn them.",
                                                               "Je hebt meer sterren nodig! Beantwoord vragen om ze te verdienen.");
 

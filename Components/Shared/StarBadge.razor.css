@@ -8,8 +8,10 @@
     padding: 0.2rem 0.7rem 0.2rem 0.55rem;
     text-decoration: none;
     color: var(--text);
+    font-family: inherit;
     font-weight: 800;
     font-size: 1.1rem;
+    cursor: pointer;
     box-shadow: 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 var(--btn-shine);
     transition: transform 0.1s, box-shadow 0.1s;
 }

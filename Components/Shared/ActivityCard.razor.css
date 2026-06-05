@@ -9,6 +9,8 @@
     border-radius: 16px;
     padding: 2rem 1.5rem;
     width: 200px;
+    font: inherit;
+    cursor: pointer;
     transition: transform 0.15s, box-shadow 0.15s;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }

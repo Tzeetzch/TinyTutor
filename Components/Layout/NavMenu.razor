@@ -1,4 +1,5 @@
 @inject LanguageService Lang
+@inject ShopState Shop
 @implements IDisposable
 
 <div class="top-row ps-3 navbar navbar-dark">
@@ -32,9 +33,9 @@
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="shop">
+            <button class="nav-link shop-nav-link" @onclick="Shop.Open">
                 🛒 @Strings.NavShop(Lang.Current)
-            </NavLink>
+            </button>
         </div>
     </nav>
 </div>

@@ -2,5 +2,5 @@ namespace TinyTutor;
 
 public static class AppVersion
 {
-    public const string Current = "1.07";
+    public const string Current = "1.09";
 }

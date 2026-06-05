@@ -9,5 +9,6 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddSingleton<LanguageService>();
 builder.Services.AddSingleton<StarService>();
+builder.Services.AddSingleton<ShopState>();
 
 await builder.Build().RunAsync();

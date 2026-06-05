@@ -1,32 +1,36 @@
-@page "/shop"
 @inject IJSRuntime JS
 @inject LanguageService Lang
 @inject StarService Stars
+@inject ShopState Shop
 @implements IDisposable
 
-<PageTitle>@Strings.NavShop(Lang.Current) – TinyTutor</PageTitle>
+@if (Shop.IsOpen)
+{
+    <div class="shop-modal-backdrop" @onclick="Shop.Close"></div>
+    <div class="shop-modal">
+        <button class="shop-modal-close" @onclick="Shop.Close" title="@Strings.ShopClose(Lang.Current)">✕</button>
+        <h2 class="shop-modal-title">@Strings.ShopTitle(Lang.Current)</h2>
+        <p class="shop-modal-sub">@Strings.ShopSubtitle(Lang.Current)</p>
+        <p class="shop-balance">
+            @Strings.ShopYouHave(Lang.Current)
+            <span class="shop-balance-stars">@Stars.Count ⭐</span>
+        </p>
 
-<PageHeader Title="@Strings.ShopTitle(Lang.Current)"
-            Subtitle="@Strings.ShopSubtitle(Lang.Current)" />
-
-<p class="shop-balance">
-    @Strings.ShopYouHave(Lang.Current)
-    <span class="shop-balance-stars">@Stars.Count ⭐</span>
-</p>
-
-<div class="shop-grid">
-    @foreach (var c in Catalog)
-    {
-        var item = c;
-        var afford = Stars.Count >= item.Cost;
-        <button class="shop-card @(item.Premium ? "shop-card-premium" : "") @(afford ? "" : "shop-card-locked")"
-                @onclick="() => Buy(item)">
-            <span class="shop-emoji">@item.Emoji</span>
-            <span class="shop-name">@(Lang.IsEnglish ? item.NameEn : item.NameNl)</span>
-            <span class="shop-cost">@item.Cost ⭐</span>
-        </button>
-    }
-</div>
+        <div class="shop-grid">
+            @foreach (var c in Catalog)
+            {
+                var item = c;
+                var afford = Stars.Count >= item.Cost;
+                <button class="shop-card @(item.Deluxe ? "shop-card-deluxe" : item.Premium ? "shop-card-premium" : "") @(afford ? "" : "shop-card-locked")"
+                        @onclick="() => Buy(item)">
+                    <span class="shop-emoji">@item.Emoji</span>
+                    <span class="shop-name">@(Lang.IsEnglish ? item.NameEn : item.NameNl)</span>
+                    <span class="shop-cost">@item.Cost ⭐</span>
+                </button>
+            }
+        </div>
+    </div>
+}
 
 @if (flying is not null)
 {
@@ -125,7 +129,8 @@
 @code {
     private enum Show { Walk, Float, Fly, Confetti, Fireworks, Rocket, Dragon, Rainbow, Parade }
 
-    private record Critter(string Emoji, string NameEn, string NameNl, int Cost, Show Anim, bool Premium = false);
+    private record Critter(string Emoji, string NameEn, string NameNl, int Cost,
+                           Show Anim = Show.Walk, bool Premium = false, bool Deluxe = false, string? Fx = null);
 
     private static readonly Critter[] Catalog =
     [
@@ -138,13 +143,20 @@
         new("🌈", "Rainbow",       "Regenboog",     8,  Show.Float),
         new("🦄", "Unicorn",       "Eenhoorn",      10, Show.Walk),
         new("🐲", "Dragon",        "Draak",         12, Show.Fly),
-        // Premium — the big shows
+        // Premium — the big emoji shows
         new("🎉", "Confetti",      "Confetti",      15, Show.Confetti,  Premium: true),
         new("🚀", "Rocket Launch", "Raketlancering",20, Show.Rocket,    Premium: true),
         new("🎆", "Fireworks",     "Vuurwerk",      28, Show.Fireworks, Premium: true),
         new("🐉", "Dragon Fire",   "Drakenvuur",    35, Show.Dragon,    Premium: true),
         new("🦄", "Rainbow Ride",  "Regenboogrit",  45, Show.Rainbow,   Premium: true),
         new("🐾", "Animal Parade", "Dierenparade",  60, Show.Parade,    Premium: true),
+        // Deluxe — canvas particle light shows (the top tier)
+        new("🎊", "Confetti Storm",   "Confettistorm",    70,  Deluxe: true, Fx: "confetti"),
+        new("🌈", "Rainbow Fountain", "Regenboogfontein", 85,  Deluxe: true, Fx: "rainbow"),
+        new("🌠", "Meteor Shower",    "Sterrenregen",     100, Deluxe: true, Fx: "meteor"),
+        new("🔥", "Fire Tornado",     "Vuurtornado",      120, Deluxe: true, Fx: "fire"),
+        new("🌌", "Galaxy",           "Melkweg",          140, Deluxe: true, Fx: "galaxy"),
+        new("🎆", "Mega Fireworks",   "Groot Vuurwerk",   160, Deluxe: true, Fx: "fireworks"),
     ];
 
     private static readonly Random Rng = new();
@@ -169,6 +181,7 @@
     {
         Lang.OnChange += OnChanged;
         Stars.OnChange += OnChanged;
+        Shop.OnChange += OnChanged;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -183,6 +196,13 @@
         if (!await Stars.TrySpendAsync(c.Cost))
         {
             await JS.InvokeVoidAsync("speakNumber", Strings.ShopNeedMore(Lang.Current), Lang.LangCode);
+            return;
+        }
+
+        // Deluxe shows run on the canvas particle engine; they self-manage their lifecycle.
+        if (c.Fx is not null)
+        {
+            await JS.InvokeVoidAsync("ttEffects.play", c.Fx);
             return;
         }
 
@@ -263,5 +283,6 @@
         _disposed = true;
         Lang.OnChange -= OnChanged;
         Stars.OnChange -= OnChanged;
+        Shop.OnChange -= OnChanged;
     }
 }

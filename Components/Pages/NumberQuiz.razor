@@ -283,6 +283,9 @@ questionNum2),
     // ── Delay setting ──────────────────────────────────────
     void SetDelay(int secs) => autoAdvanceSeconds = secs;
 
+    // Stars scale with the current first-try streak: 1–4 → 1, 5–9 → 2, 10–19 → 3, 20+ → 4.
+    private static int StarsForStreak(int s) => s >= 20 ? 4 : s >= 10 ? 3 : s >= 5 ? 2 : 1;
+
     // ── Question generation ────────────────────────────────
     void NewQuestion()
     {
@@ -386,7 +389,7 @@ questionNum2),
             solved = true;
             asked++;
             if (wrongAttempts.Count == 0) { score++; streak++; }
-            lastStarsEarned = wrongAttempts.Count == 0 ? 2 : 1;
+            lastStarsEarned = StarsForStreak(streak);
             await Stars.AddAsync(lastStarsEarned);
             var feedback = Strings.SpeakCorrectFeedback(Lang.Current, wrongAttempts.Count,
 streak);
