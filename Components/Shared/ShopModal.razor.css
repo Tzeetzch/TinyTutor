@@ -59,6 +59,8 @@
 }
 
 .shop-card {
+    position: relative;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -74,11 +76,29 @@
 }
 .shop-card:hover { transform: scale(1.05); box-shadow: 0 4px 14px var(--glow); }
 
+.shop-emoji, .shop-name, .shop-cost { position: relative; z-index: 1; }
 .shop-emoji { font-size: 2.4rem; line-height: 1; }
 .shop-name  { font-size: 0.78rem; font-weight: 600; color: var(--text-muted); text-align: center; }
 .shop-cost  { font-size: 0.92rem; font-weight: 800; color: #ffd24a; }
 
-.shop-card-locked { opacity: 0.5; }
+/* "Charging up" fill — rises from the bottom as the balance nears the cost */
+.shop-fill {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 0;
+    background: linear-gradient(to top, rgba(255,210,74,0.40), rgba(255,210,74,0.12));
+    box-shadow: 0 -1px 6px rgba(255,210,74,0.25);
+    transition: height 0.4s ease;
+}
+.shop-card-deluxe .shop-fill {
+    background: linear-gradient(to top, rgba(183,116,255,0.45), rgba(183,116,255,0.12));
+    box-shadow: 0 -1px 6px rgba(183,116,255,0.3);
+}
+
+/* Locked cards stay readable so the fill shows through */
+.shop-card-locked { opacity: 0.82; }
 
 /* Premium cards get a golden frame + sheen */
 .shop-card-premium {

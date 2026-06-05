@@ -22,7 +22,7 @@ A playful, kid-friendly web app for learning the numbers **1–50** — by sight
   - **Premium spectacles** — layered CSS animations: 🎉 confetti, 🎆 fireworks, 🚀 a rocket launch to the moon, 🐉 a fire-breathing dragon, 🌈 a drawn rainbow with a galloping unicorn, a 🐾 animal parade.
   - **Deluxe light shows** — a real `<canvas>` particle engine (gravity, drag, fading light trails, hundreds of particles at 60fps): 🎊 confetti storm, 🌈 rainbow fountain, 🌠 meteor shower, 🔥 fire tornado, 🌌 galaxy, 🎆 mega fireworks.
   
-  The balance is saved on the device, so kids save up for the pricier shows.
+  The balance is saved on the device, and each not-yet-affordable reward shows a fill that "charges up" as the balance approaches its price — so kids can see how close the next show is.
 - **🔊 Spoken feedback** — every number, question, and answer is read aloud using the browser's Web Speech API, with TTS-tuned Dutch pronunciations.
 - **🌍 Bilingual** — full English and Dutch (default) UI and speech, switchable on the fly.
 - **🎨 Themeable** — eight preset accent colors plus a custom color picker. Your choice and language are saved in `localStorage`.

@@ -23,6 +23,10 @@
                 var afford = Stars.Count >= item.Cost;
                 <button class="shop-card @(item.Deluxe ? "shop-card-deluxe" : item.Premium ? "shop-card-premium" : "") @(afford ? "" : "shop-card-locked")"
                         @onclick="() => Buy(item)">
+                    @if (!afford)
+                    {
+                        <span class="shop-fill" style="height:@(Pct(item))%"></span>
+                    }
                     <span class="shop-emoji">@item.Emoji</span>
                     <span class="shop-name">@(Lang.IsEnglish ? item.NameEn : item.NameNl)</span>
                     <span class="shop-cost">@item.Cost ⭐</span>
@@ -176,6 +180,9 @@
     private bool _disposed;
 
     private static string N(double d) => d.ToString(System.Globalization.CultureInfo.InvariantCulture);
+
+    // How "charged up" a not-yet-affordable card is, 0–100%.
+    private int Pct(Critter c) => c.Cost <= 0 ? 100 : Math.Min(100, Stars.Count * 100 / c.Cost);
 
     protected override void OnInitialized()
     {
