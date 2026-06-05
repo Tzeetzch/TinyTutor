@@ -234,7 +234,7 @@
 .sum-result { font-size: 2rem; font-weight: 900; color: var(--text); }
 
 /* Smaller dots inside sums so two groups fit side by side */
-.quiz-sum .quiz-dots-box { padding: 0.7rem 0.85rem; }
+.quiz-sum .quiz-dots-box { padding: 0.7rem 0.85rem; margin: 0; }
 .quiz-sum .quiz-dots     { gap: 7px; }
 .quiz-sum .dot-circle    { width: 22px; height: 22px; }
 
