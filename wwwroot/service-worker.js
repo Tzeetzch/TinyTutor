@@ -1,10 +1,11 @@
-const CACHE = 'tinytutor-v1.04'; // keep in sync with AppVersion.cs
+const CACHE = 'tinytutor-v1.11'; // keep in sync with AppVersion.cs
 const PRECACHE = [
-    '/app.css?v=1.04',
+    '/app.css?v=1.11',
     '/manifest.json',
     '/icon-192.png',
     '/icon-512.png',
-    '/js/speech.js'
+    '/js/speech.js',
+    '/js/effects.js'
 ];
 
 self.addEventListener('install', e => {
