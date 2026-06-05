@@ -1,14 +1,28 @@
-<a href="@Href" class="activity-card">
-    <div class="activity-icon">@Icon</div>
-    <div class="activity-text">
-        <h2>@Title</h2>
-        <p>@Description</p>
-    </div>
-</a>
+@if (OnClick.HasDelegate)
+{
+    <button class="activity-card" @onclick="OnClick">
+        <div class="activity-icon">@Icon</div>
+        <div class="activity-text">
+            <h2>@Title</h2>
+            <p>@Description</p>
+        </div>
+    </button>
+}
+else
+{
+    <a href="@Href" class="activity-card">
+        <div class="activity-icon">@Icon</div>
+        <div class="activity-text">
+            <h2>@Title</h2>
+            <p>@Description</p>
+        </div>
+    </a>
+}
 
 @code {
-    [Parameter, EditorRequired] public string Href        { get; set; } = "";
+    [Parameter] public string Href        { get; set; } = "";
     [Parameter, EditorRequired] public string Icon        { get; set; } = "";
     [Parameter, EditorRequired] public string Title       { get; set; } = "";
     [Parameter, EditorRequired] public string Description { get; set; } = "";
+    [Parameter] public EventCallback OnClick { get; set; }
 }

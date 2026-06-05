@@ -8,7 +8,10 @@
     <main>
         <div class="top-row px-4">
             <span class="mobile-brand">TinyTutor</span>
-            <SettingsPanel />
+            <div class="top-row-actions">
+                <StarBadge />
+                <SettingsPanel />
+            </div>
         </div>
 
         <article class="content px-4">
@@ -18,5 +21,7 @@
 </div>
 
 <MobileNav />
+
+<ShopModal />
 
 <div class="version-badge">v@(AppVersion.Current)</div>

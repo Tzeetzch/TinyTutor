@@ -82,6 +82,12 @@
     color: #f5e8e0;
 }
 
+.nav-item ::deep .shop-nav-link {
+    font: inherit;
+    cursor: pointer;
+    text-align: left;
+}
+
 .nav-scrollable {
     display: none;
 }

@@ -38,7 +38,7 @@
     protected override void OnInitialized()
     {
         Lang.OnChange += OnLanguageChanged;
-        deck = Enumerable.Range(1, 30).OrderBy(_ => Rng.Next()).ToList();
+        deck = Enumerable.Range(1, NumberHelper.Max).OrderBy(_ => Rng.Next()).ToList();
         currentNumber = deck[0];
     }
 
@@ -54,7 +54,7 @@
     void Next()
     {
         if (!revealed) streak = 0;
-        deckIndex = (deckIndex + 1) % 30;
+        deckIndex = (deckIndex + 1) % NumberHelper.Max;
         if (deckIndex == 0)
             deck = deck.OrderBy(_ => Rng.Next()).ToList();
         currentNumber = deck[deckIndex];

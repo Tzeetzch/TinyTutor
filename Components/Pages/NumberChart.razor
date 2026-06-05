@@ -9,7 +9,7 @@
             Subtitle="@Strings.ChartSubtitle(Lang.Current)" />
 
 <div class="number-grid">
-    @for (int i = 1; i <= 30; i++)
+    @for (int i = 1; i <= NumberHelper.Max; i++)
     {
         var num = i;
         var group = (num - 1) / 10;

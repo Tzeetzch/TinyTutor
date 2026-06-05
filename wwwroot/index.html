@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
-    <link rel="stylesheet" href="app.css?v=1.03" />
+    <link rel="stylesheet" href="app.css?v=1.11" />
     <link rel="stylesheet" href="TinyTutor.styles.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="manifest" href="manifest.json" />
@@ -50,6 +50,8 @@
         };
         window.getSavedLang  = function () { return localStorage.getItem('tinytutor-lang'); };
         window.saveLang      = function (lang) { localStorage.setItem('tinytutor-lang', lang); };
+        window.getStars      = function () { var v = parseInt(localStorage.getItem('tinytutor-stars'), 10); return isNaN(v) ? 0 : v; };
+        window.saveStars     = function (n) { localStorage.setItem('tinytutor-stars', n); };
         window.blurActive    = function () { if (document.activeElement) document.activeElement.blur(); };
         (function () {
             var t = localStorage.getItem('tinytutor-theme'); if (!t) return;
@@ -77,6 +79,7 @@
     </div>
 
     <script src="js/speech.js"></script>
+    <script src="js/effects.js"></script>
     <script src="_framework/blazor.webassembly.js"></script>
     <script>
         if ('serviceWorker' in navigator)
