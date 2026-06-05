@@ -1,0 +1,85 @@
+# TinyTutor 🔢
+
+A playful, kid-friendly web app for learning the numbers **1–30** — by sight, by sound, and by play. Built with **Blazor WebAssembly** (.NET 8), it runs entirely in the browser, works offline as an installable PWA, and speaks every number out loud in **English or Dutch**.
+
+## Features
+
+- **🔢 Number Chart** — a colorful grid of 1–30. Tap any number to hear it spoken aloud.
+- **🃏 Flash Cards** — a number flips to reveal its written word; tap *Hear it* to listen. Keeps a streak going for every card heard before flipping.
+- **⭐ Number Quiz** — multiple-choice practice with five question modes:
+  - **Word** — match the spoken/written word to the number
+  - **Before** — what comes before a number
+  - **After** — what comes after a number
+  - **Between** — what fits between two numbers
+  - **Count** — count the dots
+  
+  Modes can be toggled on/off, with optional auto-advance (off / 2s / 3s / 5s), live scoring, and a 🔥 streak counter.
+- **🔊 Spoken feedback** — every number, question, and answer is read aloud using the browser's Web Speech API, with TTS-tuned Dutch pronunciations.
+- **🌍 Bilingual** — full English and Dutch (default) UI and speech, switchable on the fly.
+- **🎨 Themeable** — eight preset accent colors plus a custom color picker. Your choice and language are saved in `localStorage`.
+- **📱 PWA & mobile-first** — installable to the home screen, works offline via a service worker, with a dedicated mobile navigation layout.
+
+## Tech stack
+
+| | |
+|---|---|
+| Framework | Blazor WebAssembly, .NET 8 |
+| Hosting | Static files (no server backend) — served by **nginx** in Docker |
+| Speech | Web Speech API (`SpeechSynthesis`) via JS interop |
+| Persistence | Browser `localStorage` |
+| PWA | Web manifest + service worker |
+
+The app has no backend and no external dependencies at runtime — all logic (number words, quiz generation, scoring) runs client-side in WebAssembly.
+
+## Getting started
+
+### Prerequisites
+
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+
+### Run locally
+
+```bash
+dotnet run
+```
+
+Then open the URL shown in the console (typically `https://localhost:5xxx`).
+
+### Build for release
+
+```bash
+dotnet publish -c Release -o ./publish
+```
+
+The static site is emitted to `./publish/wwwroot`.
+
+## Docker
+
+A multi-stage `Dockerfile` builds the WASM app and serves the static output with nginx.
+
+```bash
+docker compose up --build
+```
+
+By default the app is published on host port **5012** (`http://localhost:5012`). Edit the port mapping in [`compose.yaml`](compose.yaml) to change it.
+
+## Project structure
+
+```
+Components/
+  Layout/      MainLayout, NavMenu
+  Pages/       Home, NumberChart, FlashCards, NumberQuiz
+  Shared/      ActivityCard, MobileNav, PageHeader, SettingsPanel, TtButton
+wwwroot/
+  js/speech.js     Web Speech API interop
+  index.html       Theme pre-load + PWA bootstrap
+  service-worker.js
+  manifest.json
+NumberHelper.cs    Number → word/speech-word lookups (EN/NL)
+LanguageService.cs Current-language state + change notifications
+Strings.cs         All UI/speech strings (EN/NL)
+```
+
+## License
+
+This project does not currently specify a license.
