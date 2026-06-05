@@ -68,6 +68,53 @@
                 </div>
             </div>
         }
+        else if (currentMode == QuizMode.Add || currentMode == QuizMode.Subtract)
+        {
+            <p class="quiz-question-text">@QuestionText</p>
+            <div class="quiz-sum">
+                <div class="quiz-dots-box">
+                    <div class="quiz-dots">
+                        @for (int i = 0; i < questionNum; i++)
+                        {
+                            var gone = currentMode == QuizMode.Subtract && i >= questionNum - questionNum2;
+                            <div class="dot-circle @(gone ? "dot-gone" : "")"></div>
+                        }
+                    </div>
+                </div>
+                @if (currentMode == QuizMode.Add)
+                {
+                    <span class="sum-op">+</span>
+                    <div class="quiz-dots-box">
+                        <div class="quiz-dots">
+                            @for (int i = 0; i < questionNum2; i++)
+                            {
+                                <div class="dot-circle"></div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+            <TtButton Variant="icon" OnClick="HearQuestion">🔊</TtButton>
+        }
+        else if (currentMode == QuizMode.MakeTen)
+        {
+            <p class="quiz-question-text">@QuestionText</p>
+            <div class="quiz-sum">
+                <div class="quiz-dots-box">
+                    <div class="quiz-dots">
+                        @for (int i = 0; i < questionNum; i++)
+                        {
+                            <div class="dot-circle"></div>
+                        }
+                    </div>
+                </div>
+                <span class="sum-op">+</span>
+                <div class="sequence-box seq-blank">?</div>
+                <span class="sum-op">=</span>
+                <span class="sum-result">10</span>
+            </div>
+            <TtButton Variant="icon" OnClick="HearQuestion">🔊</TtButton>
+        }
         else
         {
             <p class="quiz-question-text">@QuestionText</p>
@@ -144,7 +191,7 @@
 
 
 @code {
-    private enum QuizMode { Word, Before, After, Between, Count }
+    private enum QuizMode { Word, Before, After, Between, Count, Add, Subtract, MakeTen }
 
     private static readonly QuizMode[] AllModes = Enum.GetValues<QuizMode>();
     private static readonly Random Rng = new();
@@ -197,6 +244,9 @@
         QuizMode.After => Strings.QuizModeAfter(Lang.Current),
         QuizMode.Between => Strings.QuizModeBetween(Lang.Current),
         QuizMode.Count => Strings.QuizModeCount(Lang.Current),
+        QuizMode.Add => Strings.QuizModeAdd(Lang.Current),
+        QuizMode.Subtract => Strings.QuizModeSubtract(Lang.Current),
+        QuizMode.MakeTen => Strings.QuizModeMakeTen(Lang.Current),
         _ => ""
     };
 
@@ -207,6 +257,9 @@
         QuizMode.Between => Strings.QuizBetween(Lang.Current, questionNum,
 questionNum2),
         QuizMode.Count => Strings.QuizCountDots(Lang.Current),
+        QuizMode.Add => Strings.QuizAdd(Lang.Current, questionNum, questionNum2),
+        QuizMode.Subtract => Strings.QuizSubtract(Lang.Current, questionNum, questionNum2),
+        QuizMode.MakeTen => Strings.QuizMakeTen(Lang.Current, questionNum),
         _ => ""
     };
 
@@ -241,48 +294,68 @@ questionNum2),
         switch (currentMode)
         {
             case QuizMode.Word:
-                targetNumber = Rng.Next(1, 31);
-                choices = GenerateChoices(targetNumber);
+                targetNumber = Rng.Next(1, NumberHelper.Max + 1);
+                choices = GenerateChoices(targetNumber, 1, NumberHelper.Max);
                 break;
 
             case QuizMode.Before:
-                questionNum = Rng.Next(2, 31);
+                questionNum = Rng.Next(2, NumberHelper.Max + 1);
                 targetNumber = questionNum - 1;
-                choices = GenerateChoices(targetNumber, questionNum);
+                choices = GenerateChoices(targetNumber, 1, NumberHelper.Max, questionNum);
                 break;
 
             case QuizMode.After:
-                questionNum = Rng.Next(1, 30);
+                questionNum = Rng.Next(1, NumberHelper.Max);
                 targetNumber = questionNum + 1;
-                choices = GenerateChoices(targetNumber, questionNum);
+                choices = GenerateChoices(targetNumber, 1, NumberHelper.Max, questionNum);
                 break;
 
             case QuizMode.Between:
-                targetNumber = Rng.Next(2, 30);
+                targetNumber = Rng.Next(2, NumberHelper.Max);
                 questionNum = targetNumber - 1;
                 questionNum2 = targetNumber + 1;
-                choices = GenerateChoices(targetNumber, questionNum, questionNum2);
+                choices = GenerateChoices(targetNumber, 1, NumberHelper.Max, questionNum, questionNum2);
                 break;
 
             case QuizMode.Count:
                 targetNumber = Rng.Next(1, 21);
-                choices = GenerateChoices(targetNumber);
+                choices = GenerateChoices(targetNumber, 1, NumberHelper.Max);
+                break;
+
+            case QuizMode.Add:
+                questionNum = Rng.Next(1, 20);                  // first addend 1–19
+                questionNum2 = Rng.Next(1, 21 - questionNum);   // keeps the sum ≤ 20
+                targetNumber = questionNum + questionNum2;
+                choices = GenerateChoices(targetNumber, 0, 20);
+                break;
+
+            case QuizMode.Subtract:
+                questionNum = Rng.Next(2, 21);                  // minuend 2–20
+                questionNum2 = Rng.Next(1, questionNum);        // subtrahend 1..a-1 → result ≥ 1
+                targetNumber = questionNum - questionNum2;
+                choices = GenerateChoices(targetNumber, 1, 20);
+                break;
+
+            case QuizMode.MakeTen:
+                questionNum = Rng.Next(1, 10);                  // given part 1–9
+                targetNumber = 10 - questionNum;
+                choices = GenerateChoices(targetNumber, 1, 9);
                 break;
         }
     }
 
-    List<int> GenerateChoices(int correct, params int[] exclude)
+    List<int> GenerateChoices(int correct, int min, int max, params int[] exclude)
     {
         var excluded = new HashSet<int>(exclude) { correct };
         var pool = new HashSet<int> { correct };
 
         for (int attempt = 0; pool.Count < 4 && attempt < 200; attempt++)
         {
-            int candidate = Math.Clamp(correct + Rng.Next(-5, 6), 1, 30);
+            int candidate = Math.Clamp(correct + Rng.Next(-5, 6), min, max);
             if (!excluded.Contains(candidate)) pool.Add(candidate);
         }
 
-        for (int n = 1; n <= 30 && pool.Count < 4; n++)
+        for (int n = min; n <= max && pool.Count < 4; n++)
             if (!excluded.Contains(n)) pool.Add(n);
 
         return pool.OrderBy(_ => Rng.Next()).ToList();
@@ -291,9 +364,13 @@ questionNum2),
     // ── Speech ─────────────────────────────────────────────
     async Task HearQuestion()
     {
-        var text = currentMode == QuizMode.Word
-            ? NumberHelper.GetSpeechWord(targetNumber, Lang.Current)
-            : QuestionText;
+        var text = currentMode switch
+        {
+            QuizMode.Word => NumberHelper.GetSpeechWord(targetNumber, Lang.Current),
+            QuizMode.Add => Strings.QuizAddSpeak(Lang.Current, questionNum, questionNum2),
+            QuizMode.Subtract => Strings.QuizSubtractSpeak(Lang.Current, questionNum, questionNum2),
+            _ => QuestionText
+        };
         await JS.InvokeVoidAsync("speakNumber", text, Lang.LangCode);
     }
 

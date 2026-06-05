@@ -13,10 +13,10 @@ public static class Strings
 
     // ── Home page ─────────────────────────────────────────
     public static string HomeWelcome(string lang)   => T(lang, "Welcome to TinyTutor!",                      "Welkom bij TinyTutor!");
-    public static string HomeSubtitle(string lang)  => T(lang, "Pick an activity to practise numbers 1–30",  "Kies een activiteit om getallen 1–30 te oefenen");
-    public static string HomeChartDesc(string lang) => T(lang, "See and hear all numbers 1–30",              "Zie en hoor alle getallen 1–30");
+    public static string HomeSubtitle(string lang)  => T(lang, "Pick an activity to practise numbers 1–50",  "Kies een activiteit om getallen 1–50 te oefenen");
+    public static string HomeChartDesc(string lang) => T(lang, "See and hear all numbers 1–50",              "Zie en hoor alle getallen 1–50");
     public static string HomeCardsDesc(string lang) => T(lang, "Practise one number at a time",              "Oefen één getal tegelijk");
-    public static string HomeQuizDesc(string lang)  => T(lang, "Match the number to its name!",              "Koppel het getal aan de naam!");
+    public static string HomeQuizDesc(string lang)  => T(lang, "Names, counting, sums and bonds!",            "Namen, tellen, sommen en splitsen!");
 
     // ── Number Chart ──────────────────────────────────────
     public static string ChartTitle(string lang)    => T(lang, "Number Chart",               "Getallenkaart");
@@ -37,12 +37,22 @@ public static class Strings
     public static string QuizModeAfter(string lang)   => T(lang, "➡️ After",    "➡️ Erna");
     public static string QuizModeBetween(string lang) => T(lang, "↔️ Between",  "↔️ Ertussen");
     public static string QuizModeCount(string lang)   => T(lang, "🔵 Count",    "🔵 Tellen");
+    public static string QuizModeAdd(string lang)      => T(lang, "➕ Add",      "➕ Plus");
+    public static string QuizModeSubtract(string lang) => T(lang, "➖ Subtract", "➖ Min");
+    public static string QuizModeMakeTen(string lang)  => T(lang, "🔟 Make 10",  "🔟 Maak 10");
 
     // ── Number Quiz — question text ───────────────────────
     public static string QuizBefore(string lang, int n)         => T(lang, $"What comes before {n}?",          $"Wat komt voor {n}?");
     public static string QuizAfter(string lang, int n)          => T(lang, $"What comes after {n}?",           $"Wat komt na {n}?");
     public static string QuizBetween(string lang, int a, int b) => T(lang, $"What is between {a} and {b}?",   $"Wat zit er tussen {a} en {b}?");
     public static string QuizCountDots(string lang)             => T(lang, "How many dots do you see?",        "Hoeveel stippen zie je?");
+    public static string QuizAdd(string lang, int a, int b)      => T(lang, $"How much is {a} + {b}?",          $"Hoeveel is {a} + {b}?");
+    public static string QuizSubtract(string lang, int a, int b) => T(lang, $"How much is {a} − {b}?",          $"Hoeveel is {a} − {b}?");
+    public static string QuizMakeTen(string lang, int n)         => T(lang, $"{n} and how many make 10?",       $"{n} en hoeveel is 10?");
+
+    // Spoken form of the sums — words instead of +/− so TTS reads them correctly.
+    public static string QuizAddSpeak(string lang, int a, int b)      => T(lang, $"How much is {a} plus {b}?",  $"Hoeveel is {a} plus {b}?");
+    public static string QuizSubtractSpeak(string lang, int a, int b) => T(lang, $"How much is {a} minus {b}?", $"Hoeveel is {a} min {b}?");
 
     // ── Number Quiz — feedback & buttons ─────────────────
     public static string QuizCorrect(string lang)   => T(lang, "🎉 Correct!",      "🎉 Goed zo!");

@@ -1,17 +1,20 @@
 # TinyTutor 🔢
 
-A playful, kid-friendly web app for learning the numbers **1–30** — by sight, by sound, and by play. Built with **Blazor WebAssembly** (.NET 8), it runs entirely in the browser, works offline as an installable PWA, and speaks every number out loud in **English or Dutch**.
+A playful, kid-friendly web app for learning the numbers **1–50** — by sight, by sound, and by play — plus first sums and number bonds. Built with **Blazor WebAssembly** (.NET 8), it runs entirely in the browser, works offline as an installable PWA, and speaks every number out loud in **English or Dutch**.
 
 ## Features
 
-- **🔢 Number Chart** — a colorful grid of 1–30. Tap any number to hear it spoken aloud.
+- **🔢 Number Chart** — a colorful grid of 1–50. Tap any number to hear it spoken aloud.
 - **🃏 Flash Cards** — a number flips to reveal its written word; tap *Hear it* to listen. Keeps a streak going for every card heard before flipping.
-- **⭐ Number Quiz** — multiple-choice practice with five question modes:
+- **⭐ Number Quiz** — multiple-choice practice with eight question modes:
   - **Word** — match the spoken/written word to the number
   - **Before** — what comes before a number
   - **After** — what comes after a number
   - **Between** — what fits between two numbers
   - **Count** — count the dots
+  - **Add** — addition within 20, shown with two groups of dots
+  - **Subtract** — subtraction within 20, shown as dots taken away
+  - **Make 10** — number bonds: how many more make ten
   
   Modes can be toggled on/off, with optional auto-advance (off / 2s / 3s / 5s), live scoring, and a 🔥 streak counter.
 - **🔊 Spoken feedback** — every number, question, and answer is read aloud using the browser's Web Speech API, with TTS-tuned Dutch pronunciations.

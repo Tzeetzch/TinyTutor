@@ -220,6 +220,43 @@
     box-shadow: 0 2px 6px var(--glow);
 }
 
+/* ── Sums (add / subtract / make 10) ── */
+.quiz-sum {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 0.5rem auto 1rem;
+}
+
+.sum-op     { font-size: 2rem; font-weight: 900; color: var(--text-muted); }
+.sum-result { font-size: 2rem; font-weight: 900; color: var(--text); }
+
+/* Smaller dots inside sums so two groups fit side by side */
+.quiz-sum .quiz-dots-box { padding: 0.7rem 0.85rem; }
+.quiz-sum .quiz-dots     { gap: 7px; }
+.quiz-sum .dot-circle    { width: 22px; height: 22px; }
+
+/* A "taken away" dot for subtraction */
+.dot-gone {
+    background: var(--surface-2);
+    box-shadow: none;
+    opacity: 0.4;
+    position: relative;
+}
+.dot-gone::after {
+    content: "✕";
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #f08070;
+    font-weight: 900;
+    font-size: 0.85rem;
+}
+
 /* ── Desktop: config always visible ── */
 @media (min-width: 641px) {
     .quiz-config  { display: block; }
