@@ -37,7 +37,8 @@ public static class NumberHelper
     // ── Generators ─────────────────────────────────────────
     private static string EnglishWord(int n)
     {
-        if (n <= 0) return "";
+        if (n < 0) return "";
+        if (n == 0) return "zero";
         if (n < 10) return EnOnes[n];
         if (n < 20) return EnTeens[n - 10];
         int t = n / 10, u = n % 10;
@@ -46,7 +47,8 @@ public static class NumberHelper
 
     private static string DutchWord(int n, bool speech)
     {
-        if (n <= 0) return "";
+        if (n < 0) return "";
+        if (n == 0) return "nul";
         if (n < 10) return NlOnes[n];
         if (n < 20) return NlTeens[n - 10];
         int t = n / 10, u = n % 10;
