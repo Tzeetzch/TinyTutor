@@ -1,6 +1,6 @@
 .number-grid {
     display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    grid-template-columns: repeat(5, 1fr);
     gap: 0.6rem;
     max-width: 480px;
     margin-bottom: 1.5rem;
@@ -25,6 +25,7 @@
 .group-2 { background: linear-gradient(to bottom, #8a1840, #4a0820); }
 .group-3 { background: linear-gradient(to bottom, #2878c8, #103a78); }
 .group-4 { background: linear-gradient(to bottom, #28a060, #0a5028); }
+.group-5 { background: linear-gradient(to bottom, #18a0a8, #084850); }
 
 .cell-active {
     outline: 3px solid var(--primary);

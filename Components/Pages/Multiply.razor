@@ -1,0 +1,274 @@
+@page "/multiply"
+@inject IJSRuntime JS
+@inject LanguageService Lang
+@inject StarService Stars
+@implements IDisposable
+
+<PageTitle>@Strings.NavMultiply(Lang.Current) – TinyTutor</PageTitle>
+
+<PageHeader Title="@Strings.MultiplyTitle(Lang.Current)"
+            Subtitle="@Strings.MultiplySubtitle(Lang.Current)" />
+
+@* ── Question ──────────────────────────────────────────────── *@
+<div class="mul-question">
+    <span class="mul-q-text">@Strings.MultiplyQuestion(Lang.Current, groups, perGroup)</span>
+    <TtButton Variant="icon" OnClick="HearQuestion">🔊</TtButton>
+</div>
+
+@* ── Groups of dots (tap to count) ─────────────────────────── *@
+<div class="mul-groups">
+    @for (int g = 0; g < groups; g++)
+    {
+        <div class="mul-group">
+            <div class="mul-group-dots" style="grid-template-columns: repeat(@perGroup, 1fr);">
+                @for (int d = 0; d < perGroup; d++)
+                {
+                    var n = g * perGroup + d + 1;          // cumulative count: (1,2,3)(4,5,6)…
+                    var on = n <= counted;
+                    var isLast = n == counted;
+                    <button class="mul-dot @(on ? "dot-on" : "") @(isLast ? "dot-now" : "")"
+                            @onclick="CountOne"
+                            disabled="@(solved || counting)">
+                        @if (on)
+                        {
+                            <span class="mul-dot-num">@n</span>
+                        }
+                    </button>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@* ── Count assist row ──────────────────────────────────────── *@
+<div class="mul-count-row">
+    @if (counted > 0 && !solved)
+    {
+        <span class="mul-count-badge">@counted</span>
+    }
+    @if (!solved)
+    {
+        <TtButton Variant="success" OnClick="CountAll" Disabled="counting">
+            @Strings.MultiplyCountBtn(Lang.Current)
+        </TtButton>
+    }
+</div>
+
+@* ── Answer choices ────────────────────────────────────────── *@
+<div class="mul-choices">
+    @foreach (var choice in choices)
+    {
+        var c = choice;
+        var cls = (solved && c == Total) ? "btn-correct"
+                : wrongAttempts.Contains(c) ? "btn-wrong"
+                : "btn-choice";
+        var disabled = solved || wrongAttempts.Contains(c);
+        <button class="mul-choice-btn @cls" @onclick="() => Answer(c)" disabled="@disabled">
+            @c
+        </button>
+    }
+</div>
+
+@* ── Feedback + reinforcement ──────────────────────────────── *@
+@if (solved)
+{
+    <div class="mul-feedback">
+        @Strings.QuizCorrect(Lang.Current)
+        <span class="mul-stars-earned">+@lastStarsEarned ⭐</span>
+    </div>
+
+    <div class="mul-repeat">
+        @for (int i = 0; i < groups; i++)
+        {
+            if (i > 0)
+            {
+                <span class="mul-op-sm">+</span>
+            }
+            <span class="mul-term">@perGroup</span>
+        }
+        <span class="mul-op-sm">=</span>
+        <span class="mul-term mul-term-total">@Total</span>
+    </div>
+
+    <div class="mul-next-row">
+        <TtButton Variant="primary" OnClick="NextQuestion">@Strings.QuizNext(Lang.Current)</TtButton>
+    </div>
+}
+
+@* ── Score ─────────────────────────────────────────────────── *@
+<div class="mul-score">
+    @Strings.QuizScore(Lang.Current): @score / @asked
+    @if (streak >= 2)
+    {
+        <span class="mul-streak">🔥 @streak</span>
+    }
+</div>
+
+@code {
+    private static readonly Random Rng = new();
+
+    private const int MinFactor = 2;
+    private const int MaxFactor = 5;
+
+    // ── Question state ─────────────────────────────────────
+    private int groups;          // a — number of groups
+    private int perGroup;        // b — dots in each group
+    private List<int> choices = [];
+    private int counted;         // how many dots have been counted (lit + numbered)
+    private bool solved;
+    private HashSet<int> wrongAttempts = [];
+
+    // ── Score ──────────────────────────────────────────────
+    private int score;
+    private int asked;
+    private int streak;
+    private int lastStarsEarned;
+
+    // ── Auto-count ─────────────────────────────────────────
+    private bool counting;
+    private CancellationTokenSource? _cts;
+
+    private int Total => groups * perGroup;
+
+    // ── Lifecycle ──────────────────────────────────────────
+    protected override async Task OnInitializedAsync()
+    {
+        Lang.OnChange += OnLanguageChanged;
+        await Stars.EnsureLoadedAsync();
+        await NextQuestion();
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+
+    public void Dispose()
+    {
+        Lang.OnChange -= OnLanguageChanged;
+        CancelCount();
+    }
+
+    // Stars scale with the current first-try streak (same ladder as the quiz).
+    private static int StarsForStreak(int s) => s >= 20 ? 4 : s >= 10 ? 3 : s >= 5 ? 2 : 1;
+
+    // ── Question generation ────────────────────────────────
+    void NewQuestion()
+    {
+        CancelCount();
+        solved = false;
+        counted = 0;
+        wrongAttempts = [];
+        groups = Rng.Next(MinFactor, MaxFactor + 1);
+        perGroup = Rng.Next(MinFactor, MaxFactor + 1);
+        choices = GenerateChoices(Total);
+    }
+
+    List<int> GenerateChoices(int correct)
+    {
+        var pool = new HashSet<int> { correct };
+
+        for (int attempt = 0; pool.Count < 4 && attempt < 200; attempt++)
+        {
+            int candidate = correct + Rng.Next(-4, 5);
+            if (candidate >= 1 && candidate != correct) pool.Add(candidate);
+        }
+
+        for (int n = 1; pool.Count < 4; n++)
+            if (n != correct) pool.Add(n);
+
+        return pool.OrderBy(_ => Rng.Next()).ToList();
+    }
+
+    // ── Counting (the assist) ──────────────────────────────
+    // Manual tap: count the next dot and say its number (responsive, may interrupt).
+    async Task CountOne()
+    {
+        if (solved || counting || counted >= Total) return;
+        counted++;
+        await Speak(NumberHelper.GetSpeechWord(counted, Lang.Current), 0.7);
+    }
+
+    // Auto count: reveal one dot at a time, waiting for each number to finish
+    // being spoken before moving on, then a short beat for rhythm.
+    async Task CountAll()
+    {
+        if (solved) return;
+        CancelCount();
+        counting = true;
+        var cts = new CancellationTokenSource();
+        _cts = cts;
+
+        try
+        {
+            // Frame it first: "3 groups of 4", spoken slowly and in full.
+            await SpeakWait(Strings.MultiplyMeansSpeak(Lang.Current, groups, perGroup), 0.8);
+            await Task.Delay(350, cts.Token);
+
+            while (counted < Total)
+            {
+                cts.Token.ThrowIfCancellationRequested();
+                counted++;
+                await InvokeAsync(StateHasChanged);
+                await SpeakWait(NumberHelper.GetSpeechWord(counted, Lang.Current), 0.7);
+                await Task.Delay(250, cts.Token);
+            }
+        }
+        catch (OperationCanceledException) { }
+        finally
+        {
+            if (_cts == cts)
+            {
+                counting = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        }
+    }
+
+    void CancelCount()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
+        counting = false;
+    }
+
+    // ── Answering ──────────────────────────────────────────
+    async Task Answer(int choice)
+    {
+        await JS.InvokeVoidAsync("blurActive");
+        if (choice == Total)
+        {
+            CancelCount();
+            solved = true;
+            counted = Total;                 // reveal every number
+            asked++;
+            if (wrongAttempts.Count == 0) { score++; streak++; }
+            lastStarsEarned = StarsForStreak(streak);
+            await Stars.AddAsync(lastStarsEarned);
+
+            var praise = Strings.SpeakCorrectFeedback(Lang.Current, wrongAttempts.Count, streak);
+            await Speak(praise + Strings.MultiplyResultSpeak(Lang.Current, groups, perGroup, Total));
+        }
+        else
+        {
+            streak = 0;
+            wrongAttempts.Add(choice);
+            await Speak(Strings.MultiplyTryCount(Lang.Current));
+        }
+    }
+
+    async Task NextQuestion()
+    {
+        NewQuestion();
+        await HearQuestion();
+    }
+
+    // ── Speech ─────────────────────────────────────────────
+    Task HearQuestion() => Speak(Strings.MultiplyQuestionSpeak(Lang.Current, groups, perGroup));
+
+    // Fire-and-forget: interrupts whatever is speaking and says this now.
+    Task Speak(string text, double rate = 0.85)
+        => JS.InvokeVoidAsync("speakNumber", text, Lang.LangCode, rate).AsTask();
+
+    // Awaits until the spoken text has actually finished (resolves on onend).
+    Task SpeakWait(string text, double rate = 0.85)
+        => JS.InvokeVoidAsync("speakAndWait", text, Lang.LangCode, rate).AsTask();
+}

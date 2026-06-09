@@ -10,6 +10,7 @@ public static class Strings
     public static string NavChart(string lang)      => T(lang, "Number Chart", "Getallenkaart");
     public static string NavFlashCards(string lang) => T(lang, "Flash Cards",  "Flitskaarten");
     public static string NavQuiz(string lang)       => T(lang, "Number Quiz",  "Getallenquiz");
+    public static string NavMultiply(string lang)   => T(lang, "Multiply",     "Keersommen");
     public static string NavShop(string lang)       => T(lang, "Star Shop",    "Sterrenwinkel");
 
     // ── Home page ─────────────────────────────────────────
@@ -18,6 +19,7 @@ public static class Strings
     public static string HomeChartDesc(string lang) => T(lang, "See and hear all numbers 1–50",              "Zie en hoor alle getallen 1–50");
     public static string HomeCardsDesc(string lang) => T(lang, "Practise one number at a time",              "Oefen één getal tegelijk");
     public static string HomeQuizDesc(string lang)  => T(lang, "Names, counting, sums and bonds!",            "Namen, tellen, sommen en splitsen!");
+    public static string HomeMultiplyDesc(string lang) => T(lang, "Count the groups to solve times sums!",  "Tel de groepjes en los keersommen op!");
     public static string HomeShopDesc(string lang)  => T(lang, "Spend your stars on a fun show!",             "Geef je sterren uit aan een leuke show!");
 
     // ── Number Chart ──────────────────────────────────────
@@ -73,6 +75,31 @@ public static class Strings
     // ── Quiz — auto-advance ───────────────────────────────
     public static string QuizAutoNext(string lang)  => T(lang, "Auto-next:", "Auto-verder:");
     public static string QuizDelayOff(string lang)  => T(lang, "Off",        "Uit");
+
+    // ── Multiply ──────────────────────────────────────────
+    public static string MultiplyTitle(string lang)    => T(lang, "Multiply", "Keersommen");
+    public static string MultiplySubtitle(string lang) => T(lang, "Count the dots to find the answer!",
+                                                                  "Tel de stippen om het antwoord te vinden!");
+    public static string MultiplyCountBtn(string lang) => T(lang, "🔢 Count them", "🔢 Tel ze");
+
+    public static string MultiplyQuestion(string lang, int a, int b)
+        => T(lang, $"What is {a} × {b}?", $"Hoeveel is {a} × {b}?");
+
+    public static string MultiplyQuestionSpeak(string lang, int a, int b)
+        => T(lang, $"How much is {a} times {b}?", $"Hoeveel is {a} keer {b}?");
+
+    public static string MultiplyTryCount(string lang)
+        => T(lang, "Try counting the dots!", "Tel de stippen eens!");
+
+    // Spoken: explain the sum as equal groups (used by the count assist).
+    public static string MultiplyMeansSpeak(string lang, int a, int b)
+    {
+        string groupWord = lang == "nl" ? (a == 1 ? "groepje" : "groepjes") : (a == 1 ? "group" : "groups");
+        return T(lang, $"{a} {groupWord} of {b}.", $"{a} {groupWord} van {b}.");
+    }
+
+    public static string MultiplyResultSpeak(string lang, int a, int b, int total)
+        => T(lang, $"{a} times {b} equals {total}!", $"{a} keer {b} is {total}!");
 
     // ── Spoken feedback (sent to TTS) ─────────────────────
     private static readonly Random _rng = new();

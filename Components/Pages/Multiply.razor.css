@@ -1,0 +1,213 @@
+/* ── Question ── */
+.mul-question {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    margin: 0.5rem 0 1.25rem;
+    flex-wrap: wrap;
+}
+.mul-q-text {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: var(--text);
+}
+
+/* ── Groups of dots — rows stacked into a grid ── */
+.mul-groups {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem auto 1.25rem;
+}
+
+.mul-group {
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 0.55rem 0.8rem;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+}
+
+.mul-group-dots {
+    display: grid;
+    gap: 10px;
+    place-items: center;
+}
+
+/* Each dot is a tappable counter */
+.mul-dot {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    touch-action: manipulation;
+    background: radial-gradient(circle at 35% 35%, #e06020, #8a1800);
+    box-shadow: 0 2px 6px var(--glow);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.12s, background 0.2s, box-shadow 0.2s;
+}
+.mul-dot:hover:not(:disabled) { transform: scale(1.1); }
+.mul-dot:disabled { cursor: default; }
+
+.dot-on {
+    background: radial-gradient(circle at 35% 35%, #2ecc71, #1a8a4a);
+    box-shadow: 0 2px 8px rgba(46, 204, 113, 0.5);
+}
+.dot-now {
+    transform: scale(1.18);
+    box-shadow: 0 0 14px rgba(46, 204, 113, 0.9);
+    z-index: 1;
+}
+
+.mul-dot-num {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ── Count assist row ── */
+.mul-count-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    min-height: 2.6rem;
+}
+
+.mul-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.6rem;
+    height: 2.6rem;
+    padding: 0 0.6rem;
+    border-radius: 20px;
+    background: var(--surface-2);
+    border: 2px solid #2ecc71;
+    color: #6ee5a0;
+    font-size: 1.3rem;
+    font-weight: 900;
+    box-shadow: 0 0 10px rgba(46, 204, 113, 0.4);
+}
+
+/* ── Answer choices ── */
+.mul-choices {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+}
+
+.mul-choice-btn {
+    font-size: 2rem;
+    font-weight: 700;
+    width: 90px;
+    height: 90px;
+    border-radius: 14px;
+    border: 1px solid var(--btn-border);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4), inset 0 1px 0 var(--btn-shine);
+    transition: transform 0.1s, box-shadow 0.1s;
+    color: #fff5f0;
+}
+.mul-choice-btn:hover:not(:disabled) { transform: scale(1.06); box-shadow: 0 4px 14px var(--glow); }
+.mul-choice-btn:disabled:not(.btn-correct):not(.btn-wrong) { opacity: 0.5; cursor: default; }
+
+.btn-choice  { background: linear-gradient(to bottom, var(--primary-lt), var(--primary-dk)); }
+.btn-correct { background: linear-gradient(to bottom, #2ecc71, #1a8a4a); border-color: #157a40; }
+.btn-wrong   { background: linear-gradient(to bottom, #c0392b, #7a1a14); border-color: #6a1510; }
+
+/* ── Feedback ── */
+.mul-feedback {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    border: 1px solid #2ecc71;
+    background: rgba(46, 204, 113, 0.15);
+    color: #6ee5a0;
+}
+.mul-stars-earned {
+    display: inline-block;
+    margin-left: 0.5rem;
+    color: #ffd24a;
+    font-weight: 800;
+    animation: pulse-glow 1s ease-in-out infinite;
+}
+
+/* ── Repeated-addition reinforcement ── */
+.mul-repeat {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+}
+.mul-term {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text);
+}
+.mul-term-total {
+    color: #ffd24a;
+    text-shadow: 0 0 12px rgba(255, 210, 74, 0.5);
+}
+.mul-op-sm {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--text-muted);
+}
+
+.mul-next-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+}
+
+/* ── Score & streak ── */
+.mul-score {
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-top: 1rem;
+}
+.mul-streak {
+    margin-left: 1rem;
+    font-weight: 800;
+    color: #ff8c30;
+    animation: pulse-glow 1.2s ease-in-out infinite;
+}
+
+/* ── Mobile ── */
+@media (max-width: 640px) {
+    .mul-q-text { font-size: 1.7rem; }
+    .mul-dot { width: 34px; height: 34px; }
+    .mul-dot-num { font-size: 0.95rem; }
+    .mul-group-dots { gap: 7px; }
+    .mul-groups { gap: 0.6rem; }
+    .mul-group { padding: 0.7rem; }
+    .mul-term { font-size: 1.3rem; }
+
+    .mul-choices {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.7rem;
+        max-width: 280px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .mul-choice-btn { width: 100%; height: 90px; font-size: 2.1rem; }
+}

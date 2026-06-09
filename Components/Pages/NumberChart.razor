@@ -9,10 +9,10 @@
             Subtitle="@Strings.ChartSubtitle(Lang.Current)" />
 
 <div class="number-grid">
-    @for (int i = 1; i <= NumberHelper.Max; i++)
+    @for (int i = 0; i <= NumberHelper.Max; i++)
     {
         var num = i;
-        var group = (num - 1) / 10;
+        var group = num / 10;
         <button class="number-cell group-@group @(lastClicked == num ? "cell-active" : "")"
                 @onclick="() => Speak(num)">
             @num
@@ -20,13 +20,13 @@
     }
 </div>
 
-@if (lastClicked > 0)
+@if (lastClicked >= 0)
 {
     <p class="chart-spoken-word">@NumberHelper.GetDisplayWord(lastClicked, Lang.Current)</p>
 }
 
 @code {
-    int lastClicked = 0;
+    int lastClicked = -1;
 
     protected override void OnInitialized() => Lang.OnChange += OnLanguageChanged;
     private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
