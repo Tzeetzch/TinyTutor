@@ -1,0 +1,65 @@
+@using System.Globalization
+
+@* A drawn analog clock. Hands always turn forward to a new time, like winding a real clock. *@
+<svg class="aclock" viewBox="0 0 200 200" aria-hidden="true">
+    <circle class="face" cx="100" cy="100" r="93" />
+    <circle class="face-ring" cx="100" cy="100" r="86" />
+
+    @foreach (var t in Ticks)
+    {
+        <line class="@(t.Big ? "tick tick-big" : "tick")" x1="@t.X1" y1="@t.Y1" x2="@t.X2" y2="@t.Y2" />
+    }
+
+    @foreach (var n in Numerals)
+    {
+        <g><text class="num" x="@n.X" y="@n.Y">@n.Label</text></g>
+    }
+
+    <line class="hand hand-hour" x1="100" y1="112" x2="100" y2="54"
+          style="transform: rotate(@(Fmt(hourAngle))deg)" />
+    <line class="hand hand-min" x1="100" y1="116" x2="100" y2="24"
+          style="transform: rotate(@(Fmt(minAngle))deg)" />
+    <circle class="cap" cx="100" cy="100" r="7.5" />
+    <circle class="cap-dot" cx="100" cy="100" r="2.5" />
+</svg>
+
+@code {
+    [Parameter] public int Hour { get; set; } = 12;
+    [Parameter] public int Minute { get; set; }
+
+    private double hourAngle, minAngle;
+    private bool placed;
+
+    protected override void OnParametersSet()
+    {
+        var h = (Hour % 12 + Minute / 60.0) * 30;
+        var m = Minute * 6.0;
+        if (!placed) { hourAngle = h; minAngle = m; placed = true; return; }
+        hourAngle = Forward(hourAngle, h);
+        minAngle  = Forward(minAngle, m);
+    }
+
+    // Smallest clockwise turn from the current angle to the target.
+    private static double Forward(double current, double target)
+        => current + ((target - current) % 360 + 360) % 360;
+
+    private static string Fmt(double v) => v.ToString("0.##", CultureInfo.InvariantCulture);
+
+    // ── Static face geometry (computed once) ───────────────
+    private record Tick(bool Big, string X1, string Y1, string X2, string Y2);
+    private record Numeral(int Label, string X, string Y);
+
+    private static string Px(double angleDeg, double r) => Fmt(100 + Math.Sin(angleDeg * Math.PI / 180) * r);
+    private static string Py(double angleDeg, double r) => Fmt(100 - Math.Cos(angleDeg * Math.PI / 180) * r);
+
+    private static readonly Tick[] Ticks = Enumerable.Range(0, 60).Select(i =>
+    {
+        bool big = i % 5 == 0;
+        double a = i * 6, r1 = 82, r2 = big ? 71 : 77;
+        return new Tick(big, Px(a, r1), Py(a, r1), Px(a, r2), Py(a, r2));
+    }).ToArray();
+
+    private static readonly Numeral[] Numerals = Enumerable.Range(1, 12)
+        .Select(n => new Numeral(n, Px(n * 30, 57), Py(n * 30, 57)))
+        .ToArray();
+}

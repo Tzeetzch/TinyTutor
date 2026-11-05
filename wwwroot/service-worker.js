@@ -1,6 +1,6 @@
-const CACHE = 'tinytutor-v1.12'; // keep in sync with AppVersion.cs
+const CACHE = 'tinytutor-v1.13'; // keep in sync with AppVersion.cs
 const PRECACHE = [
-    '/app.css?v=1.12',
+    '/app.css?v=1.13',
     '/manifest.json',
     '/icon-192.png',
     '/icon-512.png',

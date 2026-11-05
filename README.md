@@ -17,6 +17,7 @@ A playful, kid-friendly web app for learning the numbers **1–50** — by sight
   - **Make 10** — number bonds: how many more make ten
   
   Modes can be toggled on/off, with optional auto-advance (off / 2s / 3s / 5s), live scoring, and a 🔥 streak counter.
+- **🕒 Klok (Clock)** — the time is shown and spoken ("half 3" / "half past 2"); tap the right clock out of four drawn analog clocks. Four stages: whole hours, half hours, quarters, 5 minutes. Wrong clocks are chosen on purpose — the Dutch half-hour trap (3:30 for "half 3"), swapped hands, one hour off — and get a spoken hint.
 - **🛒 Star Shop** — correct quiz answers earn ⭐ stars, scaled by the first-try streak (1 → 2 → 3 → 4 stars as the streak climbs through 5/10/20). The shop opens as a **modal from the star badge**, so kids can spend without leaving the quiz and losing their streak. Three tiers to save up for:
   - **Quick wins** — a single friend (🦖 dino, 🐱 cat, 🚀 rocket…) walks, floats, or flies across the screen.
   - **Premium spectacles** — layered CSS animations: 🎉 confetti, 🎆 fireworks, 🚀 a rocket launch to the moon, 🐉 a fire-breathing dragon, 🌈 a drawn rainbow with a galloping unicorn, a 🐾 animal parade.
@@ -77,14 +78,15 @@ By default the app is published on host port **5012** (`http://localhost:5012`).
 ```
 Components/
   Layout/      MainLayout, NavMenu
-  Pages/       Home, NumberChart, FlashCards, NumberQuiz
-  Shared/      ActivityCard, MobileNav, PageHeader, SettingsPanel, ShopModal, StarBadge, TtButton
+  Pages/       Home, NumberChart, FlashCards, NumberQuiz, Multiply, Klok
+  Shared/      AnalogClock, ActivityCard, MobileNav, PageHeader, SettingsPanel, ShopModal, StarBadge, TtButton
 wwwroot/
   js/speech.js     Web Speech API interop
   js/effects.js    Canvas particle engine for the deluxe shop shows
   index.html       Theme pre-load + PWA bootstrap
   service-worker.js
   manifest.json
+ClockTime.cs       A clock time and how to say it (EN/NL, incl. "half drie" = 2:30)
 NumberHelper.cs    Number → word/speech-word lookups (EN/NL)
 LanguageService.cs Current-language state + change notifications
 StarService.cs     Star balance — earned in the quiz, spent in the shop, saved to localStorage
