@@ -22,6 +22,34 @@
 
             <hr class="settings-divider" />
 
+            @* ── Voice ── *@
+            <div class="settings-item settings-item-col">
+                <span class="settings-item-label">Stem / Voice</span>
+                @if (voices is null)
+                {
+                    <span class="voice-note">…</span>
+                }
+                else if (voices.Count == 0)
+                {
+                    <span class="voice-note">@(Lang.IsEnglish ? "This browser has no English voice." : "Deze browser heeft geen Nederlandse stem.")</span>
+                }
+                else
+                {
+                    <div class="voice-row">
+                        <select class="voice-select" value="@voiceId" @onchange="PickVoice">
+                            <option value="">@(Lang.IsEnglish ? "Automatic (best)" : "Automatisch (beste)")</option>
+                            @foreach (var v in voices)
+                            {
+                                <option value="@v.Id">@v.Name</option>
+                            }
+                        </select>
+                        <button class="voice-test" title="Test" @onclick="TestVoice">🔊</button>
+                    </div>
+                }
+            </div>
+
+            <hr class="settings-divider" />
+
             @* ── Theme color ── *@
             <div class="settings-item settings-item-col">
                 <span class="settings-item-label">Kleur / Color</span>
@@ -77,14 +105,44 @@
         }
     }
 
-    private void Toggle() => open = !open;
+    private List<VoiceInfo>? voices;
+    private string voiceId = "";
+
+    public record VoiceInfo(string Id, string Name, string Lang, bool Local);
+
+    private async Task Toggle()
+    {
+        open = !open;
+        if (open) await LoadVoices();
+    }
+
+    private async Task LoadVoices()
+    {
+        voices = null;
+        StateHasChanged();
+        voices = await JS.InvokeAsync<List<VoiceInfo>>("getVoiceList", Lang.LangCode);
+        voiceId = await JS.InvokeAsync<string>("getVoiceChoice", Lang.LangCode);
+        if (voiceId != "" && !voices.Any(v => v.Id == voiceId)) voiceId = "";
+    }
+
+    private async Task PickVoice(ChangeEventArgs e)
+    {
+        voiceId = e.Value?.ToString() ?? "";
+        await JS.InvokeVoidAsync("setVoiceChoice", Lang.LangCode, voiceId);
+        await TestVoice();
+    }
+
+    private Task TestVoice()
+        => JS.InvokeVoidAsync("previewVoice", Lang.LangCode, voiceId,
+               Lang.IsEnglish ? "Hello! Twenty-three plus ten is thirty-three." : "Hallo! Drieëntwintig plus tien is drieëndertig.").AsTask();
+
     private void Close()  => open = false;
 
     private async Task PickLang(string lang)
     {
         Lang.Set(lang);
         await JS.InvokeVoidAsync("saveLang", lang);
-        open = false;
+        await LoadVoices();     // the voice list depends on the language
     }
 
     private async Task PickColor(string hex)

@@ -111,3 +111,35 @@
     background: none;
     overflow: hidden;
 }
+
+/* ── Voice picker ── */
+.voice-row {
+    display: flex;
+    gap: 0.4rem;
+    width: 100%;
+}
+.voice-select {
+    flex: 1;
+    min-width: 0;
+    max-width: 230px;
+    background: var(--bg, #1a0a06);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.3rem 0.4rem;
+    font-size: 0.85rem;
+}
+.voice-test {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.2rem 0.5rem;
+    cursor: pointer;
+    touch-action: manipulation;
+}
+.voice-test:hover { border-color: var(--primary); }
+.voice-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    max-width: 230px;
+}
