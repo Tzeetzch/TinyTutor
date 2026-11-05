@@ -56,6 +56,7 @@ public static class Strings
     public static string QuizModeSubtract(string lang) => T(lang, "➖ Subtract", "➖ Min");
     public static string QuizModeMakeTen(string lang)  => T(lang, "🔟 Make 10",  "🔟 Maak 10");
     public static string QuizModeTens(string lang)     => T(lang, "🦘 Jump 10",  "🦘 Sprong 10");
+    public static string QuizModeSplit(string lang)    => T(lang, "🏠 Split",    "🏠 Splitsen");
 
     // ── Number Quiz — question text ───────────────────────
     public static string QuizBefore(string lang, int n)         => T(lang, $"What comes before {n}?",          $"Wat komt voor {n}?");
@@ -65,6 +66,7 @@ public static class Strings
     public static string QuizAdd(string lang, int a, int b)      => T(lang, $"How much is {a} + {b}?",          $"Hoeveel is {a} + {b}?");
     public static string QuizSubtract(string lang, int a, int b) => T(lang, $"How much is {a} − {b}?",          $"Hoeveel is {a} − {b}?");
     public static string QuizMakeTen(string lang, int n)         => T(lang, $"{n} and how many make 10?",       $"{n} en hoeveel is 10?");
+    public static string QuizSplit(string lang, int whole, int part) => T(lang, $"Split {whole}: {part} and how many?", $"Splits {whole}: {part} en hoeveel?");
     public static string QuizTensMore(string lang, int n)        => T(lang, $"What is 10 more than {n}?",       $"Wat is 10 meer dan {n}?");
     public static string QuizTensLess(string lang, int n)        => T(lang, $"What is 10 less than {n}?",       $"Wat is 10 minder dan {n}?");
 
