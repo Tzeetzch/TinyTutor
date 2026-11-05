@@ -1,0 +1,264 @@
+@page "/krokodil"
+@inject IJSRuntime JS
+@inject LanguageService Lang
+@inject StarService Stars
+@implements IDisposable
+
+<PageTitle>@Strings.CrocTitle(Lang.Current) – TinyTutor</PageTitle>
+
+<PageHeader Title="@Strings.CrocTitle(Lang.Current)"
+            Subtitle="@Strings.CrocSubtitle(Lang.Current)" />
+
+@* ── Range picker ──────────────────────────────────────────── *@
+<div class="croc-ranges">
+    @foreach (var r in Ranges)
+    {
+        var max = r;
+        <button class="range-btn @(rangeMax == max ? "range-active" : "")" @onclick="() => SetRange(max)">
+            @Strings.CrocRange(Lang.Current, max)
+        </button>
+    }
+</div>
+
+<div class="croc-question">
+    <span>@Strings.CrocQuestion(Lang.Current)</span>
+    <TtButton Variant="icon" OnClick="HearQuestion">🔊</TtButton>
+</div>
+
+@* ── Number · crocodile · number ───────────────────────────── *@
+<div class="croc-stage">
+    @NumberCard(0)
+
+    <div class="croc-wrap @(facingLeft ? "face-left" : "") croc-@state" @key="animKey">
+        <svg class="croc" viewBox="0 0 220 150" aria-hidden="true">
+            <defs>
+                <linearGradient id="croc-skin" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#7ad35a" />
+                    <stop offset="1" stop-color="#2f8a2c" />
+                </linearGradient>
+                <linearGradient id="croc-belly" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#d8f08a" />
+                    <stop offset="1" stop-color="#9cc84a" />
+                </linearGradient>
+            </defs>
+
+            @* back of the head *@
+            <ellipse cx="58" cy="82" rx="52" ry="44" fill="url(#croc-skin)" stroke="#184a18" stroke-width="3" />
+            <circle cx="22" cy="62" r="7" fill="#5bbf4a" stroke="#184a18" stroke-width="2.5" />
+            <circle cx="36" cy="46" r="7" fill="#5bbf4a" stroke="#184a18" stroke-width="2.5" />
+
+            @* lower jaw (hinges at 80,82) *@
+            <g class="jaw jaw-bottom">
+                <path d="M78,82 L204,84 Q214,86 209,96 L198,106 L76,108 Z"
+                      fill="url(#croc-belly)" stroke="#184a18" stroke-width="3" stroke-linejoin="round" />
+                @for (int x = 96; x <= 186; x += 18)
+                {
+                    <polygon points="@x,84 @(x + 6),73 @(x + 12),84" fill="#fffdf2" stroke="#184a18" stroke-width="1.5" stroke-linejoin="round" />
+                }
+            </g>
+
+            @* upper jaw *@
+            <g class="jaw jaw-top">
+                <path d="M68,56 L198,60 Q216,62 214,76 L210,82 L78,82 Z"
+                      fill="url(#croc-skin)" stroke="#184a18" stroke-width="3" stroke-linejoin="round" />
+                @for (int x = 104; x <= 194; x += 18)
+                {
+                    <polygon points="@x,81 @(x + 6),92 @(x + 12),81" fill="#fffdf2" stroke="#184a18" stroke-width="1.5" stroke-linejoin="round" />
+                }
+                <circle cx="200" cy="60" r="8" fill="#5bbf4a" stroke="#184a18" stroke-width="2.5" />
+                <ellipse cx="202" cy="58" rx="2.5" ry="1.8" fill="#184a18" />
+            </g>
+
+            @* eye *@
+            <circle cx="80" cy="46" r="19" fill="url(#croc-skin)" stroke="#184a18" stroke-width="3" />
+            <circle cx="83" cy="44" r="12" fill="#fffdf2" />
+            <circle class="pupil" cx="88" cy="44" r="6" fill="#1a1a1a" />
+            <circle cx="90" cy="41" r="2" fill="#ffffff" />
+        </svg>
+    </div>
+
+    @NumberCard(1)
+</div>
+
+@* ── Hint / result ─────────────────────────────────────────── *@
+@if (!solved && hint is not null)
+{
+    <div class="croc-hint">@hint</div>
+}
+
+@if (solved)
+{
+    <div class="croc-result">
+        <span class="res-num">@nums[0]</span>
+        <span class="res-sign">@(nums[0] > nums[1] ? ">" : "<")</span>
+        <span class="res-num">@nums[1]</span>
+    </div>
+    <div class="croc-feedback">
+        @Strings.QuizCorrect(Lang.Current) @Strings.CrocCompare(Lang.Current, nums[0].ToString(), nums[1].ToString(), nums[0] > nums[1])
+        <span class="croc-stars">+@lastStarsEarned ⭐</span>
+    </div>
+    <div class="croc-next-row">
+        <TtButton Variant="primary" OnClick="NextQuestion">@Strings.QuizNext(Lang.Current)</TtButton>
+    </div>
+}
+
+<div class="croc-score">
+    @Strings.QuizScore(Lang.Current): @score / @asked
+    @if (streak >= 2)
+    {
+        <span class="croc-streak">🔥 @streak</span>
+    }
+</div>
+
+@code {
+    private static readonly Random Rng = new();
+    private static readonly int[] Ranges = [20, 100];
+
+    private int rangeMax = 100;
+    private int[] nums = [43, 47];
+    private bool solved;
+    private bool busy;
+    private bool facingLeft;
+    private string state = "idle";          // idle | lunge | chomp | shake
+    private int animKey;                    // bump to restart CSS animations
+    private int eatenSide = -1;
+    private HashSet<int> wrongSides = [];
+    private string? hint;
+
+    private int score, asked, streak, lastStarsEarned;
+
+    private RenderFragment NumberCard(int side) => __builder =>
+    {
+        var cls = eatenSide == side ? "num-eaten" + (side == 0 ? " eaten-left" : " eaten-right")
+                : wrongSides.Contains(side) ? "num-wrong"
+                : solved ? "num-left-over" : "";
+        <button class="croc-num @cls" @onclick="() => Answer(side)" disabled="@(solved || busy || wrongSides.Contains(side))">
+            @nums[side]
+        </button>
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Lang.OnChange += OnLanguageChanged;
+        await Stars.EnsureLoadedAsync();
+        await NextQuestion();
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Lang.OnChange -= OnLanguageChanged;
+
+    private static int StarsForStreak(int s) => s >= 20 ? 4 : s >= 10 ? 3 : s >= 5 ? 2 : 1;
+
+    async Task SetRange(int max)
+    {
+        if (busy || max == rangeMax) return;
+        rangeMax = max;
+        await NextQuestion();
+    }
+
+    // ── Pairs that make you look twice ─────────────────────
+    void NewPair()
+    {
+        int a, b;
+        if (rangeMax <= 20)
+        {
+            a = Rng.Next(1, 21);
+            do b = Rng.Next(1, 21); while (b == a);
+        }
+        else
+        {
+            switch (Rng.Next(5))
+            {
+                case 0:                                       // same tens: 43 vs 47
+                    a = Rng.Next(1, 10) * 10 + Rng.Next(0, 10);
+                    do b = a / 10 * 10 + Rng.Next(0, 10); while (b == a);
+                    break;
+                case 1:                                       // reversed digits: 47 vs 74
+                {
+                    int t = Rng.Next(1, 10), u;
+                    do u = Rng.Next(1, 10); while (u == t);
+                    a = t * 10 + u; b = u * 10 + t;
+                    break;
+                }
+                case 2:                                       // big ones digit, small tens: 29 vs 31
+                {
+                    int t = Rng.Next(1, 9);
+                    a = t * 10 + Rng.Next(7, 10);
+                    b = (t + 1) * 10 + Rng.Next(0, 3);
+                    break;
+                }
+                case 3:                                       // neighbours: 58 vs 59
+                    a = Rng.Next(10, 100);
+                    b = a + 1;
+                    break;
+                default:
+                    a = Rng.Next(1, 101);
+                    do b = Rng.Next(1, 101); while (b == a);
+                    break;
+            }
+        }
+        nums = Rng.Next(2) == 0 ? [a, b] : [b, a];
+    }
+
+    async Task NextQuestion()
+    {
+        NewPair();
+        solved = false;
+        busy = false;
+        hint = null;
+        eatenSide = -1;
+        wrongSides = [];
+        state = "idle";
+        animKey++;
+        await HearQuestion();
+    }
+
+    // ── The crocodile goes for a number ────────────────────
+    async Task Answer(int side)
+    {
+        if (busy || solved || wrongSides.Contains(side)) return;
+        await JS.InvokeVoidAsync("blurActive");
+        busy = true;
+        facingLeft = side == 0;
+        state = "lunge"; animKey++;
+        StateHasChanged();
+        await Task.Delay(380);
+
+        bool bigger = nums[side] > nums[1 - side];
+        if (bigger)
+        {
+            state = "chomp"; animKey++;
+            eatenSide = side;
+            StateHasChanged();
+            await Task.Delay(650);
+
+            solved = true;
+            asked++;
+            if (wrongSides.Count == 0) { score++; streak++; }
+            lastStarsEarned = StarsForStreak(streak);
+            await Stars.AddAsync(lastStarsEarned);
+
+            var praise = Strings.SpeakCorrectFeedback(Lang.Current, wrongSides.Count, streak);
+            await Speak(praise + Strings.CrocCompare(Lang.Current,
+                NumberHelper.GetSpeechWord(nums[0], Lang.Current),
+                NumberHelper.GetSpeechWord(nums[1], Lang.Current), nums[0] > nums[1]));
+        }
+        else
+        {
+            streak = 0;
+            state = "shake"; animKey++;
+            wrongSides.Add(side);
+            hint = Strings.CrocYuck(Lang.Current);
+            StateHasChanged();
+            await Speak(hint);
+            await Task.Delay(800);
+            state = "idle"; animKey++;
+        }
+        busy = false;
+    }
+
+    Task HearQuestion() => Speak(Strings.CrocQuestion(Lang.Current));
+
+    Task Speak(string text, double rate = 0.85)
+        => JS.InvokeVoidAsync("speakNumber", text, Lang.LangCode, rate).AsTask();
+}

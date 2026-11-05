@@ -1,0 +1,211 @@
+/* ── Range picker ── */
+.croc-ranges {
+    display: flex;
+    justify-content: center;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+}
+.range-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 8px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+.range-btn:hover { border-color: var(--primary); color: var(--text); }
+.range-active {
+    background: linear-gradient(to bottom, var(--primary-lt), var(--primary-dk));
+    border-color: var(--btn-border);
+    color: #fff5f0;
+    box-shadow: 0 2px 8px var(--glow);
+}
+
+.croc-question {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+/* ── Stage: number · croc · number ── */
+.croc-stage {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 640px;
+    margin: 0 auto 1.25rem;
+}
+
+.croc-num {
+    justify-self: center;
+    width: 100%;
+    max-width: 140px;
+    aspect-ratio: 1;
+    border-radius: 22px;
+    border: 1px solid var(--btn-border);
+    background: linear-gradient(to bottom, var(--primary-lt), var(--primary-dk));
+    color: #fff5f0;
+    font-size: 3rem;
+    font-weight: 900;
+    cursor: pointer;
+    touch-action: manipulation;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45), inset 0 1px 0 var(--btn-shine);
+    transition: transform 0.12s, box-shadow 0.12s, opacity 0.3s;
+}
+.croc-num:hover:not(:disabled) { transform: scale(1.06); box-shadow: 0 6px 20px var(--glow); }
+.croc-num:disabled { cursor: default; }
+
+.num-wrong {
+    background: linear-gradient(to bottom, #c0392b, #7a1a14);
+    opacity: 0.55;
+}
+.num-left-over { opacity: 0.55; }
+
+/* the eaten number shrinks into the crocodile's mouth */
+.num-eaten { pointer-events: none; }
+.eaten-left  { animation: eaten-left 0.55s ease-in forwards; }
+.eaten-right { animation: eaten-right 0.55s ease-in forwards; }
+@keyframes eaten-left  { to { transform: translateX(60%) scale(0.1) rotate(25deg);  opacity: 0; } }
+@keyframes eaten-right { to { transform: translateX(-60%) scale(0.1) rotate(-25deg); opacity: 0; } }
+
+/* ── Crocodile ── */
+.croc-wrap {
+    width: 100%;
+    max-width: 260px;
+    justify-self: center;
+}
+.face-left { transform: scaleX(-1); }   /* mouth opens toward the left number */
+
+.croc {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+    filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
+}
+
+.jaw { transform-origin: 80px 82px; }
+
+/* idle: mouth slowly opens and closes, eye wanders */
+.croc-idle .jaw-top    { animation: top-idle 2.4s ease-in-out infinite; }
+.croc-idle .jaw-bottom { animation: bottom-idle 2.4s ease-in-out infinite; }
+.croc-idle .pupil      { animation: look 4s ease-in-out infinite; }
+@keyframes top-idle    { 0%, 100% { transform: rotate(-5deg); }  50% { transform: rotate(-15deg); } }
+@keyframes bottom-idle { 0%, 100% { transform: rotate(3deg); }   50% { transform: rotate(10deg); } }
+@keyframes look        { 0%, 40%, 100% { transform: translateX(0); } 50%, 85% { transform: translateX(-5px); } }
+
+/* lunge: lean toward the number with the mouth wide open */
+.croc-lunge .croc       { animation: lunge 0.38s ease-out forwards; }
+.croc-lunge .jaw-top    { animation: top-wide 0.3s ease-out forwards; }
+.croc-lunge .jaw-bottom { animation: bottom-wide 0.3s ease-out forwards; }
+@keyframes lunge       { to { transform: translateX(14%); } }
+@keyframes top-wide    { to { transform: rotate(-30deg); } }
+@keyframes bottom-wide { to { transform: rotate(18deg); } }
+
+/* chomp: snap shut twice, then sit back happily */
+.croc-chomp .croc       { animation: chomp-body 0.65s ease-out forwards; }
+.croc-chomp .jaw-top    { animation: top-chomp 0.65s ease-in-out forwards; }
+.croc-chomp .jaw-bottom { animation: bottom-chomp 0.65s ease-in-out forwards; }
+@keyframes chomp-body   { 0% { transform: translateX(14%); } 100% { transform: translateX(0); } }
+@keyframes top-chomp    { 0% { transform: rotate(-30deg); } 30% { transform: rotate(0); } 50% { transform: rotate(-14deg); } 70%, 100% { transform: rotate(0); } }
+@keyframes bottom-chomp { 0% { transform: rotate(18deg); }  30% { transform: rotate(0); } 50% { transform: rotate(8deg); }   70%, 100% { transform: rotate(0); } }
+
+/* shake: "bah!" — mouth shut, head shakes no */
+.croc-shake .croc { animation: shake 0.7s ease-in-out; }
+@keyframes shake {
+    0%, 100% { transform: rotate(0); }
+    15% { transform: rotate(-9deg); }
+    35% { transform: rotate(8deg); }
+    55% { transform: rotate(-6deg); }
+    75% { transform: rotate(4deg); }
+}
+
+/* ── Hint & result ── */
+.croc-hint {
+    max-width: 560px;
+    margin: 0 auto 1rem;
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 700;
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    border: 1px solid #e0a020;
+    background: rgba(255, 196, 60, 0.12);
+    color: #ffd98a;
+}
+
+.croc-result {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.9rem;
+    margin-bottom: 0.75rem;
+    font-weight: 900;
+}
+.res-num  { font-size: 2.6rem; color: var(--text); }
+.res-sign {
+    font-size: 3.4rem;
+    line-height: 1;
+    color: #7ad35a;
+    text-shadow: 0 0 16px rgba(122, 211, 90, 0.6);
+    animation: sign-pop 0.5s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+@keyframes sign-pop { from { transform: scale(0.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.croc-feedback {
+    max-width: 560px;
+    margin: 0 auto 1rem;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: 700;
+    padding: 0.7rem 1rem;
+    border-radius: 10px;
+    border: 1px solid #2ecc71;
+    background: rgba(46, 204, 113, 0.15);
+    color: #6ee5a0;
+}
+.croc-stars {
+    display: inline-block;
+    margin-left: 0.5rem;
+    color: #ffd24a;
+    font-weight: 800;
+    animation: pulse-glow 1s ease-in-out infinite;
+}
+.croc-next-row { display: flex; justify-content: center; margin-bottom: 0.5rem; }
+
+.croc-score {
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-top: 1rem;
+}
+.croc-streak {
+    margin-left: 1rem;
+    font-weight: 800;
+    color: #ff8c30;
+    animation: pulse-glow 1.2s ease-in-out infinite;
+}
+
+@media (max-width: 640px) {
+    .croc-question { font-size: 1.25rem; }
+    .croc-num { font-size: 2.2rem; border-radius: 16px; }
+    .croc-stage { gap: 0.25rem; }
+    .res-num { font-size: 2rem; }
+    .res-sign { font-size: 2.6rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .croc-wrap *, .croc-num, .res-sign { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+}

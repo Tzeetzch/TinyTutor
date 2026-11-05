@@ -25,6 +25,7 @@ A playful, kid-friendly web app for learning the numbers **0–100** — by sigh
 
   Modes can be toggled on/off, with optional auto-advance (off / 2s / 3s / 5s), live scoring, and a 🔥 streak counter.
 - **🕒 Klok (Clock)** — the time is shown and spoken ("half 3" / "half past 2"); tap the right clock out of four drawn analog clocks. Four stages: whole hours, half hours, quarters, 5 minutes. Wrong clocks are chosen on purpose — the Dutch half-hour trap (3:30 for "half 3"), swapped hands, one hour off — and get a spoken hint.
+- **🐊 Krokodil (Crocodile)** — two numbers and a drawn, animated crocodile that always eats the biggest one. Tap a number: the crocodile lunges and chomps it (then shows **47 > 43** — its open mouth is the sign), or shakes its head "Bah!" at the smaller one. Up to 20 or up to 100, with pairs picked to make you look twice: same tens (43/47), swapped digits (47/74), 29 vs 31, neighbours.
 - **🛒 Star Shop** — correct quiz answers earn ⭐ stars, scaled by the first-try streak (1 → 2 → 3 → 4 stars as the streak climbs through 5/10/20). The shop opens as a **modal from the star badge**, so kids can spend without leaving the quiz and losing their streak. Three tiers to save up for:
   - **Quick wins** — a single friend (🦖 dino, 🐱 cat, 🚀 rocket…) walks, floats, or flies across the screen.
   - **Premium spectacles** — layered CSS animations: 🎉 confetti, 🎆 fireworks, 🚀 a rocket launch to the moon, 🐉 a fire-breathing dragon, 🌈 a drawn rainbow with a galloping unicorn, a 🐾 animal parade.
@@ -85,7 +86,7 @@ By default the app is published on host port **5012** (`http://localhost:5012`).
 ```
 Components/
   Layout/      MainLayout, NavMenu
-  Pages/       Home, NumberChart, FlashCards, NumberQuiz, Multiply, Klok
+  Pages/       Home, NumberChart, FlashCards, NumberQuiz, Multiply, Klok, Krokodil
   Shared/      AnalogClock, TenFrames, ActivityCard, MobileNav, PageHeader, SettingsPanel, ShopModal, StarBadge, TtButton
 wwwroot/
   js/speech.js     Web Speech API interop
