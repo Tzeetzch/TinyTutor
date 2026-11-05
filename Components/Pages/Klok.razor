@@ -1,0 +1,222 @@
+@page "/klok"
+@inject IJSRuntime JS
+@inject LanguageService Lang
+@inject StarService Stars
+@implements IDisposable
+
+<PageTitle>@Strings.NavClock(Lang.Current) – TinyTutor</PageTitle>
+
+<PageHeader Title="@Strings.ClockTitle(Lang.Current)"
+            Subtitle="@Strings.ClockSubtitle(Lang.Current)" />
+
+@* ── Stage picker ──────────────────────────────────────────── *@
+<div class="klok-stages">
+    @for (int s = 0; s < StageMinutes.Length; s++)
+    {
+        var st = s;
+        <button class="stage-btn @(stage == st ? "stage-active" : "")" @onclick="() => SetStage(st)">
+            @Strings.ClockStage(Lang.Current, st)
+        </button>
+    }
+</div>
+
+@* ── Question ──────────────────────────────────────────────── *@
+<div class="klok-question">
+    <span class="klok-ask">@Strings.ClockAsk(Lang.Current)</span>
+    <div class="klok-phrase-row">
+        <span class="klok-phrase">@target.Phrase(Lang.Current)</span>
+        <TtButton Variant="icon" OnClick="HearQuestion">🔊</TtButton>
+    </div>
+</div>
+
+@* ── Four clocks to choose from ────────────────────────────── *@
+<div class="klok-choices">
+    @for (int i = 0; i < options.Count; i++)
+    {
+        var idx = i;
+        var o = options[i];
+        var isTarget = o.Time == target;
+        var cls = solved && isTarget ? "klok-right"
+                : wrongPicks.Contains(idx) ? "klok-wrong"
+                : solved ? "klok-faded" : "";
+        <button class="klok-choice @cls"
+                @onclick="() => Answer(idx)"
+                disabled="@(solved || wrongPicks.Contains(idx))"
+                aria-label="@o.Time.Digital">
+            <AnalogClock Hour="o.Time.Hour" Minute="o.Time.Minute" />
+            <span class="klok-digital @(solved || wrongPicks.Contains(idx) ? "" : "klok-digital-hidden")">@o.Time.Digital</span>
+        </button>
+    }
+</div>
+
+@* ── Hint after a wrong pick ───────────────────────────────── *@
+@if (!solved && hint is not null)
+{
+    <div class="klok-hint">💡 @hint</div>
+}
+
+@* ── Feedback ──────────────────────────────────────────────── *@
+@if (solved)
+{
+    <div class="klok-feedback">
+        @Strings.QuizCorrect(Lang.Current)
+        @Strings.ClockItIs(Lang.Current, target.Phrase(Lang.Current))
+        <span class="klok-stars-earned">+@lastStarsEarned ⭐</span>
+    </div>
+
+    <div class="klok-next-row">
+        <TtButton Variant="primary" OnClick="NextQuestion">@Strings.QuizNext(Lang.Current)</TtButton>
+    </div>
+}
+
+@* ── Score ─────────────────────────────────────────────────── *@
+<div class="klok-score">
+    @Strings.QuizScore(Lang.Current): @score / @asked
+    @if (streak >= 2)
+    {
+        <span class="klok-streak">🔥 @streak</span>
+    }
+</div>
+
+@code {
+    private static readonly Random Rng = new();
+
+    // Minutes used per stage: whole hours → half hours → quarters → 5-minute steps.
+    private static readonly int[][] StageMinutes =
+    [
+        [0],
+        [0, 30],
+        [0, 15, 30, 45],
+        [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55],
+    ];
+
+    // Why a wrong clock is tempting — drives the hint after a wrong pick.
+    private enum Trap { None, HalfHour, SwappedHands, Other }
+    private record Option(ClockTime Time, Trap Trap);
+
+    // ── State ──────────────────────────────────────────────
+    private int stage = 1;                 // start at whole + half hours (groep 3)
+    private ClockTime target = new(3, 0);
+    private List<Option> options = [];
+    private HashSet<int> wrongPicks = [];
+    private bool solved;
+    private string? hint;
+
+    private int score;
+    private int asked;
+    private int streak;
+    private int lastStarsEarned;
+
+    // ── Lifecycle ──────────────────────────────────────────
+    protected override async Task OnInitializedAsync()
+    {
+        Lang.OnChange += OnLanguageChanged;
+        await Stars.EnsureLoadedAsync();
+        await NextQuestion();
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Lang.OnChange -= OnLanguageChanged;
+
+    // Same star ladder as the quiz and multiply pages.
+    private static int StarsForStreak(int s) => s >= 20 ? 4 : s >= 10 ? 3 : s >= 5 ? 2 : 1;
+
+    async Task SetStage(int s)
+    {
+        if (s == stage) return;
+        stage = s;
+        await NextQuestion();
+    }
+
+    // ── Question generation ────────────────────────────────
+    void NewQuestion()
+    {
+        solved = false;
+        hint = null;
+        wrongPicks = [];
+
+        var minutes = StageMinutes[stage];
+        ClockTime t;
+        do t = new ClockTime(Rng.Next(1, 13), minutes[Rng.Next(minutes.Length)]);
+        while (t == target);
+        target = t;
+
+        var picked = new List<Option> { new(t, Trap.None) };
+        void Add(ClockTime c, Trap k)
+        {
+            if (picked.Count < 4 && !picked.Any(p => p.Time == c)) picked.Add(new(c, k));
+        }
+
+        // The classic Dutch mistake always gets a seat: for "half 3" (2:30), the clock at 3:30.
+        if (t.Minute == 30) Add(t with { Hour = t.NextHour }, Trap.HalfHour);
+
+        // Other tempting clocks, in random order: hands swapped, one hour off, another minute.
+        var tempting = new List<Option>
+        {
+            new(Swapped(t), Trap.SwappedHands),
+            new(t with { Hour = t.PrevHour }, Trap.Other),
+            new(t with { Hour = t.NextHour }, Trap.Other),
+            new(t with { Minute = minutes[Rng.Next(minutes.Length)] }, Trap.Other),
+        };
+        foreach (var o in tempting.OrderBy(_ => Rng.Next())) Add(o.Time, o.Trap);
+
+        while (picked.Count < 4)
+            Add(new ClockTime(Rng.Next(1, 13), minutes[Rng.Next(minutes.Length)]), Trap.Other);
+
+        options = picked.OrderBy(_ => Rng.Next()).ToList();
+    }
+
+    // Long and short hand swapped: 3:00 becomes the hour hand on 12 and the minute hand on 3.
+    private static ClockTime Swapped(ClockTime t)
+        => new(t.Minute == 0 ? 12 : t.Minute / 5, t.Hour % 12 * 5);
+
+    // ── Answering ──────────────────────────────────────────
+    async Task Answer(int idx)
+    {
+        await JS.InvokeVoidAsync("blurActive");
+        if (solved || wrongPicks.Contains(idx)) return;
+
+        var pick = options[idx];
+        if (pick.Time == target)
+        {
+            solved = true;
+            asked++;
+            if (wrongPicks.Count == 0) { score++; streak++; }
+            lastStarsEarned = StarsForStreak(streak);
+            await Stars.AddAsync(lastStarsEarned);
+
+            var praise = Strings.SpeakCorrectFeedback(Lang.Current, wrongPicks.Count, streak);
+            await Speak(praise + Strings.ClockItIs(Lang.Current, target.Phrase(Lang.Current, speech: true)));
+        }
+        else
+        {
+            streak = 0;
+            wrongPicks.Add(idx);
+
+            var (shown, spoken) = pick.Trap switch
+            {
+                Trap.HalfHour => (
+                    Strings.ClockHalfHint(Lang.Current, target.Phrase(Lang.Current), target.Hour.ToString(), target.NextHour.ToString()),
+                    Strings.ClockHalfHint(Lang.Current, target.Phrase(Lang.Current, speech: true),
+                        NumberHelper.GetSpeechWord(target.Hour, Lang.Current), NumberHelper.GetSpeechWord(target.NextHour, Lang.Current))),
+                Trap.SwappedHands => (Strings.ClockHandsHint(Lang.Current), Strings.ClockHandsHint(Lang.Current)),
+                _ => ((string?)null, Strings.SpeakWrongFeedback(Lang.Current)),
+            };
+            hint = shown;
+            await Speak(spoken);
+        }
+    }
+
+    async Task NextQuestion()
+    {
+        NewQuestion();
+        await HearQuestion();
+    }
+
+    // ── Speech ─────────────────────────────────────────────
+    Task HearQuestion()
+        => Speak(Strings.ClockQuestionSpeak(Lang.Current, target.Phrase(Lang.Current, speech: true)));
+
+    Task Speak(string text, double rate = 0.85)
+        => JS.InvokeVoidAsync("speakNumber", text, Lang.LangCode, rate).AsTask();
+}

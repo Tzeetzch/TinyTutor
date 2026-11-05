@@ -11,6 +11,7 @@ public static class Strings
     public static string NavFlashCards(string lang) => T(lang, "Flash Cards",  "Flitskaarten");
     public static string NavQuiz(string lang)       => T(lang, "Number Quiz",  "Getallenquiz");
     public static string NavMultiply(string lang)   => T(lang, "Multiply",     "Keersommen");
+    public static string NavClock(string lang)      => T(lang, "Clock",        "Klok");
     public static string NavShop(string lang)       => T(lang, "Star Shop",    "Sterrenwinkel");
 
     // ── Home page ─────────────────────────────────────────
@@ -20,6 +21,7 @@ public static class Strings
     public static string HomeCardsDesc(string lang) => T(lang, "Practise one number at a time",              "Oefen één getal tegelijk");
     public static string HomeQuizDesc(string lang)  => T(lang, "Names, counting, sums and bonds!",            "Namen, tellen, sommen en splitsen!");
     public static string HomeMultiplyDesc(string lang) => T(lang, "Count the groups to solve times sums!",  "Tel de groepjes en los keersommen op!");
+    public static string HomeClockDesc(string lang) => T(lang, "Listen to the time and find the right clock!", "Luister naar de tijd en zoek de goede klok!");
     public static string HomeShopDesc(string lang)  => T(lang, "Spend your stars on a fun show!",             "Geef je sterren uit aan een leuke show!");
 
     // ── Number Chart ──────────────────────────────────────
@@ -100,6 +102,35 @@ public static class Strings
 
     public static string MultiplyResultSpeak(string lang, int a, int b, int total)
         => T(lang, $"{a} times {b} equals {total}!", $"{a} keer {b} is {total}!");
+
+    // ── Clock ─────────────────────────────────────────────
+    public static string ClockTitle(string lang)    => T(lang, "Clock", "Klok");
+    public static string ClockSubtitle(string lang) => T(lang, "Listen to the time and tap the right clock!",
+                                                              "Luister naar de tijd en tik op de goede klok!");
+    public static string ClockAsk(string lang)      => T(lang, "Which clock shows…", "Op welke klok is het…");
+
+    public static string ClockStage(string lang, int stage) => stage switch
+    {
+        0 => T(lang, "O'clock",   "Hele uren"),
+        1 => T(lang, "Half past", "Halve uren"),
+        2 => T(lang, "Quarters",  "Kwartieren"),
+        _ => T(lang, "5 minutes", "5 minuten"),
+    };
+
+    public static string ClockQuestionSpeak(string lang, string time)
+        => T(lang, $"Which clock shows {time}?", $"Op welke klok is het {time}?");
+
+    public static string ClockItIs(string lang, string time)
+        => T(lang, $"It's {time}!", $"Het is {time}!");
+
+    // Hint for the classic half-hour mix-up: "half 3" is 2:30, so the short hand is between 2 and 3.
+    public static string ClockHalfHint(string lang, string time, string hour, string next)
+        => T(lang, $"Look! At {time} the short hand is between the {hour} and the {next}.",
+                   $"Let op! Bij {time} staat de kleine wijzer tussen de {hour} en de {next}.");
+
+    public static string ClockHandsHint(string lang)
+        => T(lang, "Look carefully: the short hand shows the hour, the long hand shows the minutes.",
+                   "Kijk goed: de kleine wijzer wijst het uur aan, de grote wijzer de minuten.");
 
     // ── Spoken feedback (sent to TTS) ─────────────────────
     private static readonly Random _rng = new();
