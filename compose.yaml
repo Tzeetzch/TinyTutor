@@ -3,6 +3,6 @@ services:
     build: .
     ports:
       - "5012:8080"   # change 5012 to whatever host port you want
-    restart: unless-stopped
+    restart: always   # podman-restart.service only restarts "always" containers after a reboot
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
