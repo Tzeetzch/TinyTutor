@@ -3,7 +3,7 @@ namespace TinyTutor;
 public static class NumberHelper
 {
     /// <summary>Highest number practised across the chart, flash cards and quiz.</summary>
-    public const int Max = 50;
+    public const int Max = 100;
 
     // ── Building blocks ────────────────────────────────────
     private static readonly string[] EnOnes =
@@ -29,7 +29,7 @@ public static class NumberHelper
 
     private static string[] Build(Func<int, string> word)
     {
-        var arr = new string[100];
+        var arr = new string[Max + 1];
         for (int n = 0; n < arr.Length; n++) arr[n] = word(n);
         return arr;
     }
@@ -39,6 +39,7 @@ public static class NumberHelper
     {
         if (n < 0) return "";
         if (n == 0) return "zero";
+        if (n == 100) return "one hundred";
         if (n < 10) return EnOnes[n];
         if (n < 20) return EnTeens[n - 10];
         int t = n / 10, u = n % 10;
@@ -49,6 +50,7 @@ public static class NumberHelper
     {
         if (n < 0) return "";
         if (n == 0) return "nul";
+        if (n == 100) return "honderd";
         if (n < 10) return NlOnes[n];
         if (n < 20) return NlTeens[n - 10];
         int t = n / 10, u = n % 10;

@@ -1,10 +1,10 @@
 # TinyTutor 🔢
 
-A playful, kid-friendly web app for learning the numbers **1–50** — by sight, by sound, and by play — plus first sums and number bonds. Built with **Blazor WebAssembly** (.NET 8), it runs entirely in the browser, works offline as an installable PWA, and speaks every number out loud in **English or Dutch**.
+A playful, kid-friendly web app for learning the numbers **0–100** — by sight, by sound, and by play — plus first sums and number bonds. Built with **Blazor WebAssembly** (.NET 8), it runs entirely in the browser, works offline as an installable PWA, and speaks every number out loud in **English or Dutch**.
 
 ## Features
 
-- **🔢 Number Chart** — a colorful grid of 1–50. Tap any number to hear it spoken aloud.
+- **🔢 Number Chart** — a colorful 0–100 grid (honderdveld), one colour per decade. Tap any number to hear it spoken aloud.
 - **🃏 Flash Cards** — a number flips to reveal its written word; tap *Hear it* to listen. Keeps a streak going for every card heard before flipping.
 - **⭐ Number Quiz** — multiple-choice practice with eight question modes:
   - **Word** — match the spoken/written word to the number
@@ -16,6 +16,10 @@ A playful, kid-friendly web app for learning the numbers **1–50** — by sight
   - **Subtract** — subtraction within 20, shown as dots taken away
   - **Make 10** — number bonds: how many more make ten
   
+  - **Jump 10** — 10 more / 10 less than a number
+
+  The quiz has an **automatic level** (saved on the device): five first-try answers in a row move up a level, two missed questions in a row move down. Level 1 is a warm-up (to 20, with Count and Make 10); level 2 goes to 50 with sums that cross ten; level 3 goes to 100 with whole-tens sums (30 + 40); level 4 adds two-digit ± one-digit sums (47 − 3). Wrong answers are picked to be tempting: off by one, off by ten, or the reversed number (74 for 47).
+
   Modes can be toggled on/off, with optional auto-advance (off / 2s / 3s / 5s), live scoring, and a 🔥 streak counter.
 - **🕒 Klok (Clock)** — the time is shown and spoken ("half 3" / "half past 2"); tap the right clock out of four drawn analog clocks. Four stages: whole hours, half hours, quarters, 5 minutes. Wrong clocks are chosen on purpose — the Dutch half-hour trap (3:30 for "half 3"), swapped hands, one hour off — and get a spoken hint.
 - **🛒 Star Shop** — correct quiz answers earn ⭐ stars, scaled by the first-try streak (1 → 2 → 3 → 4 stars as the streak climbs through 5/10/20). The shop opens as a **modal from the star badge**, so kids can spend without leaving the quiz and losing their streak. Three tiers to save up for:

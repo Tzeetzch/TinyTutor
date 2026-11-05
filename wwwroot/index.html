@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <base href="/" />
     <link rel="stylesheet" href="bootstrap/bootstrap.min.css" />
-    <link rel="stylesheet" href="app.css?v=1.13" />
-    <link rel="stylesheet" href="TinyTutor.styles.css?v=1.13" />
+    <link rel="stylesheet" href="app.css?v=1.14" />
+    <link rel="stylesheet" href="TinyTutor.styles.css?v=1.14" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#c84010" />
@@ -52,6 +52,8 @@
         window.saveLang      = function (lang) { localStorage.setItem('tinytutor-lang', lang); };
         window.getStars      = function () { var v = parseInt(localStorage.getItem('tinytutor-stars'), 10); return isNaN(v) ? 0 : v; };
         window.saveStars     = function (n) { localStorage.setItem('tinytutor-stars', n); };
+        window.getQuizLevel  = function () { var v = parseInt(localStorage.getItem('tinytutor-quiz-level'), 10); return isNaN(v) ? 0 : v; };
+        window.saveQuizLevel = function (n) { localStorage.setItem('tinytutor-quiz-level', n); };
         window.blurActive    = function () { if (document.activeElement) document.activeElement.blur(); };
         (function () {
             var t = localStorage.getItem('tinytutor-theme'); if (!t) return;

@@ -16,8 +16,8 @@ public static class Strings
 
     // ── Home page ─────────────────────────────────────────
     public static string HomeWelcome(string lang)   => T(lang, "Welcome to TinyTutor!",                      "Welkom bij TinyTutor!");
-    public static string HomeSubtitle(string lang)  => T(lang, "Pick an activity to practise numbers 1–50",  "Kies een activiteit om getallen 1–50 te oefenen");
-    public static string HomeChartDesc(string lang) => T(lang, "See and hear all numbers 1–50",              "Zie en hoor alle getallen 1–50");
+    public static string HomeSubtitle(string lang)  => T(lang, "Pick an activity to practise numbers 0–100", "Kies een activiteit om getallen 0–100 te oefenen");
+    public static string HomeChartDesc(string lang) => T(lang, "See and hear all numbers 0–100",             "Zie en hoor alle getallen 0–100");
     public static string HomeCardsDesc(string lang) => T(lang, "Practise one number at a time",              "Oefen één getal tegelijk");
     public static string HomeQuizDesc(string lang)  => T(lang, "Names, counting, sums and bonds!",            "Namen, tellen, sommen en splitsen!");
     public static string HomeMultiplyDesc(string lang) => T(lang, "Count the groups to solve times sums!",  "Tel de groepjes en los keersommen op!");
@@ -55,6 +55,7 @@ public static class Strings
     public static string QuizModeAdd(string lang)      => T(lang, "➕ Add",      "➕ Plus");
     public static string QuizModeSubtract(string lang) => T(lang, "➖ Subtract", "➖ Min");
     public static string QuizModeMakeTen(string lang)  => T(lang, "🔟 Make 10",  "🔟 Maak 10");
+    public static string QuizModeTens(string lang)     => T(lang, "🦘 Jump 10",  "🦘 Sprong 10");
 
     // ── Number Quiz — question text ───────────────────────
     public static string QuizBefore(string lang, int n)         => T(lang, $"What comes before {n}?",          $"Wat komt voor {n}?");
@@ -64,6 +65,15 @@ public static class Strings
     public static string QuizAdd(string lang, int a, int b)      => T(lang, $"How much is {a} + {b}?",          $"Hoeveel is {a} + {b}?");
     public static string QuizSubtract(string lang, int a, int b) => T(lang, $"How much is {a} − {b}?",          $"Hoeveel is {a} − {b}?");
     public static string QuizMakeTen(string lang, int n)         => T(lang, $"{n} and how many make 10?",       $"{n} en hoeveel is 10?");
+    public static string QuizTensMore(string lang, int n)        => T(lang, $"What is 10 more than {n}?",       $"Wat is 10 meer dan {n}?");
+    public static string QuizTensLess(string lang, int n)        => T(lang, $"What is 10 less than {n}?",       $"Wat is 10 minder dan {n}?");
+
+    // ── Number Quiz — automatic level ─────────────────────
+    public static string QuizLevel(string lang, int n)    => T(lang, $"Level {n}", $"Level {n}");
+    public static string QuizLevelUp(string lang, int n)  => T(lang, $"Level up! You're on level {n}!", $"Level omhoog! Je zit nu op level {n}!");
+    public static string QuizLevelHint(string lang)       => T(lang, "The level goes up after 5 right answers in a row, and down after 2 missed questions.",
+                                                                     "Het level gaat omhoog na 5 keer goed op rij, en omlaag na 2 gemiste vragen.");
+    public static string QuizModeNotThisLevel(string lang) => T(lang, "Not used at this level", "Zit niet in dit level");
 
     // Spoken form of the sums — words instead of +/− so TTS reads them correctly.
     public static string QuizAddSpeak(string lang, int a, int b)      => T(lang, $"How much is {a} plus {b}?",  $"Hoeveel is {a} plus {b}?");
