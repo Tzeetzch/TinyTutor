@@ -33,7 +33,7 @@ A playful, kid-friendly web app for learning the numbers **0–100** — by sigh
   - **Deluxe light shows** — a real `<canvas>` particle engine (gravity, drag, fading light trails, hundreds of particles at 60fps): 🎊 confetti storm, 🌈 rainbow fountain, 🌠 meteor shower, 🔥 fire tornado, 🌌 galaxy, 🎆 mega fireworks.
   
   The balance is saved on the device, and each not-yet-affordable reward shows a fill that "charges up" as the balance approaches its price — so kids can see how close the next show is.
-- **🔊 Spoken feedback** — every number, question, and answer is read aloud using the browser's Web Speech API, with TTS-tuned Dutch pronunciations.
+- **🔊 Spoken feedback** — every number, question, and answer is read aloud using the browser's Web Speech API, with TTS-tuned Dutch pronunciations. The app picks the best-sounding voice itself (Google / natural / online voices before eSpeak, which is what browsers on Linux fall back to), and the ⚙️ settings have a voice list with a test button to choose one per device.
 - **🌍 Bilingual** — full English and Dutch (default) UI and speech, switchable on the fly.
 - **🎨 Themeable** — eight preset accent colors plus a custom color picker. Your choice and language are saved in `localStorage`.
 - **📱 PWA & mobile-first** — installable to the home screen, works offline via a service worker, with a dedicated mobile navigation layout.
