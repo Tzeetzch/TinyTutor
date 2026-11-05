@@ -13,6 +13,7 @@ public static class Strings
     public static string NavMultiply(string lang)   => T(lang, "Multiply",     "Keersommen");
     public static string NavClock(string lang)      => T(lang, "Clock",        "Klok");
     public static string NavCroc(string lang)       => T(lang, "Crocodile",    "Krokodil");
+    public static string NavFrog(string lang)       => T(lang, "Frog",         "Kikker");
     public static string NavShop(string lang)       => T(lang, "Star Shop",    "Sterrenwinkel");
 
     // ── Home page ─────────────────────────────────────────
@@ -24,6 +25,7 @@ public static class Strings
     public static string HomeMultiplyDesc(string lang) => T(lang, "Count the groups to solve times sums!",  "Tel de groepjes en los keersommen op!");
     public static string HomeClockDesc(string lang) => T(lang, "Listen to the time and find the right clock!", "Luister naar de tijd en zoek de goede klok!");
     public static string HomeCrocDesc(string lang)  => T(lang, "Feed the crocodile the biggest number!", "Voer de krokodil het grootste getal!");
+    public static string HomeFrogDesc(string lang)  => T(lang, "Jump along the number line with the frog!", "Spring mee met de kikker over de getallenlijn!");
     public static string HomeShopDesc(string lang)  => T(lang, "Spend your stars on a fun show!",             "Geef je sterren uit aan een leuke show!");
 
     // ── Number Chart ──────────────────────────────────────
@@ -160,6 +162,27 @@ public static class Strings
         => leftBigger
             ? T(lang, $"{left} is bigger than {right}!",  $"{left} is groter dan {right}!")
             : T(lang, $"{left} is smaller than {right}!", $"{left} is kleiner dan {right}!");
+
+    // ── Frog on the number line ───────────────────────────
+    public static string FrogTitle(string lang)    => T(lang, "Jumping Frog", "Springende kikker");
+    public static string FrogSubtitle(string lang) => T(lang, "Jump along the number line with the frog!",
+                                                             "Spring mee met de kikker over de getallenlijn!");
+    public static string FrogWhere(string lang)    => T(lang, "Where does the frog land?", "Waar komt de kikker?");
+    public static string FrogForward(string lang)  => T(lang, "Forward", "Vooruit");
+    public static string FrogBoth(string lang)     => T(lang, "Forward and back", "Vooruit en terug");
+    public static string FrogSplash(string lang)   => T(lang, "Splash! The frog fell in the water. Do the big jumps of 10 first, then the small jump.",
+                                                             "Plons! De kikker valt in het water. Doe eerst de grote sprongen van 10, dan de kleine sprong.");
+    public static string FrogLanded(string lang, string n) => T(lang, $"The frog lands on {n}!", $"De kikker landt op {n}!");
+
+    // "The frog is on 34. It jumps 10, 10 and 3 forward. Where does it land?"
+    public static string FrogQuestion(string lang, string start, string[] jumps, bool back)
+    {
+        string list = jumps.Length == 1 ? jumps[0]
+            : string.Join(", ", jumps[..^1]) + T(lang, " and ", " en ") + jumps[^1];
+        return T(lang,
+            $"The frog is on {start}. It jumps {list} {(back ? "back" : "forward")}. Where does it land?",
+            $"De kikker zit op {start}. Hij springt {list} {(back ? "terug" : "vooruit")}. Waar komt hij?");
+    }
 
     // ── Spoken feedback (sent to TTS) ─────────────────────
     private static readonly Random _rng = new();
