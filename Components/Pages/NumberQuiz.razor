@@ -105,47 +105,52 @@
         else if (currentMode == QuizMode.Add || currentMode == QuizMode.Subtract)
         {
             <p class="quiz-question-text">@QuestionText</p>
-            <div class="quiz-sum">
-                <div class="quiz-dots-box">
-                    <div class="quiz-dots">
-                        @for (int i = 0; i < questionNum; i++)
-                        {
-                            var gone = currentMode == QuizMode.Subtract && i >= questionNum - questionNum2;
-                            <div class="dot-circle @(gone ? "dot-gone" : "")"></div>
-                        }
-                    </div>
-                </div>
-                @if (currentMode == QuizMode.Add)
-                {
-                    <span class="sum-op">+</span>
-                    <div class="quiz-dots-box">
-                        <div class="quiz-dots">
-                            @for (int i = 0; i < questionNum2; i++)
-                            {
-                                <div class="dot-circle"></div>
-                            }
-                        </div>
-                    </div>
-                }
+            <div class="quiz-sequence">
+                <div class="sequence-box seq-given">@questionNum</div>
+                <span class="sum-op">@(currentMode == QuizMode.Add ? "+" : "−")</span>
+                <div class="sequence-box seq-given">@questionNum2</div>
+                <span class="sum-op">=</span>
+                <div class="sequence-box @(solved ? "seq-given" : "seq-blank")">@(solved ? targetNumber : "?")</div>
             </div>
+            @if (currentMode == QuizMode.Add)
+            {
+                @* 8 + 5: eight orange, then gold finishes the ten and spills into the next frame *@
+                <TenFrames First="questionNum" Second="questionNum2" MinFrames="@(questionNum + questionNum2 > 10 ? 2 : 1)" />
+            }
+            else
+            {
+                <TenFrames First="questionNum" Gone="questionNum2" />
+            }
             <TtButton Variant="icon" OnClick="HearQuestion">🔊</TtButton>
         }
         else if (currentMode == QuizMode.MakeTen)
         {
             <p class="quiz-question-text">@QuestionText</p>
-            <div class="quiz-sum">
-                <div class="quiz-dots-box">
-                    <div class="quiz-dots">
-                        @for (int i = 0; i < questionNum; i++)
-                        {
-                            <div class="dot-circle"></div>
-                        }
-                    </div>
-                </div>
+            <div class="quiz-sequence">
+                <div class="sequence-box seq-given">@questionNum</div>
                 <span class="sum-op">+</span>
-                <div class="sequence-box seq-blank">?</div>
+                <div class="sequence-box @(solved ? "seq-given" : "seq-blank")">@(solved ? targetNumber : "?")</div>
                 <span class="sum-op">=</span>
                 <span class="sum-result">10</span>
+            </div>
+            <TenFrames First="questionNum" Second="@(solved ? targetNumber : 0)" />
+            <TtButton Variant="icon" OnClick="HearQuestion">🔊</TtButton>
+        }
+        else if (currentMode == QuizMode.Split)
+        {
+            <p class="quiz-question-text">@QuestionText</p>
+            @* Splitshuisje: the whole on the roof, the two parts in the rooms *@
+            <div class="split-house">
+                <div class="split-roof"><span>@questionNum</span></div>
+                <div class="split-rooms">
+                    @foreach (var left in new[] { true, false })
+                    {
+                        var unknown = left == splitUnknownLeft;
+                        <div class="split-room @(unknown && !solved ? "split-blank" : "") @(unknown && solved ? "split-solved" : "")">
+                            @(unknown ? (solved ? targetNumber.ToString() : "?") : questionNum2.ToString())
+                        </div>
+                    }
+                </div>
             </div>
             <TtButton Variant="icon" OnClick="HearQuestion">🔊</TtButton>
         }
@@ -232,7 +237,7 @@
 
 
 @code {
-    private enum QuizMode { Word, Before, After, Between, Count, Add, Subtract, MakeTen, Tens }
+    private enum QuizMode { Word, Before, After, Between, Count, Add, Subtract, MakeTen, Tens, Split }
 
     private static readonly QuizMode[] AllModes = Enum.GetValues<QuizMode>();
     private static readonly Random Rng = new();
@@ -265,13 +270,14 @@
     private int levelRun;                  // first-try answers in a row at this level
     private int missRun;                   // missed questions in a row
     private bool levelUpShown;
+    private bool splitUnknownLeft;         // which room of the splitshuisje holds the "?"
 
     private static QuizMode[] LevelModes(int lvl) => lvl switch
     {
         1 => [QuizMode.Word, QuizMode.Before, QuizMode.After, QuizMode.Between,
-              QuizMode.Count, QuizMode.Add, QuizMode.Subtract, QuizMode.MakeTen],
+              QuizMode.Count, QuizMode.Add, QuizMode.Subtract, QuizMode.MakeTen, QuizMode.Split],
         _ => [QuizMode.Word, QuizMode.Before, QuizMode.After, QuizMode.Between,
-              QuizMode.Add, QuizMode.Subtract, QuizMode.Tens],
+              QuizMode.Add, QuizMode.Subtract, QuizMode.Tens, QuizMode.Split],
     };
 
     // Highest number used in naming / ordering questions at this level.
@@ -317,6 +323,7 @@
         QuizMode.Subtract => Strings.QuizModeSubtract(Lang.Current),
         QuizMode.MakeTen => Strings.QuizModeMakeTen(Lang.Current),
         QuizMode.Tens => Strings.QuizModeTens(Lang.Current),
+        QuizMode.Split => Strings.QuizModeSplit(Lang.Current),
         _ => ""
     };
 
@@ -332,6 +339,7 @@ questionNum2),
         QuizMode.MakeTen => Strings.QuizMakeTen(Lang.Current, questionNum),
         QuizMode.Tens => questionNum2 > 0 ? Strings.QuizTensMore(Lang.Current, questionNum)
                                           : Strings.QuizTensLess(Lang.Current, questionNum),
+        QuizMode.Split => Strings.QuizSplit(Lang.Current, questionNum, questionNum2),
         _ => ""
     };
 
@@ -420,6 +428,18 @@ questionNum2),
                 choices = GenerateChoices(targetNumber, 1, 9);
                 break;
 
+            case QuizMode.Split:
+                (questionNum, questionNum2) = MakeSplit();      // whole, known part
+                targetNumber = questionNum - questionNum2;
+                splitUnknownLeft = Rng.Next(2) == 0;
+                // Tempting: off by one, repeating the known part, and off by ten for big numbers.
+                choices = PickChoices(targetNumber,
+                    level >= 3 && questionNum > 20
+                        ? [targetNumber + 10, targetNumber - 10, targetNumber + 1, targetNumber - 1, questionNum2]
+                        : [targetNumber + 1, targetNumber - 1, questionNum2, targetNumber + 2, targetNumber - 2],
+                    0, Math.Max(questionNum, 10));
+                break;
+
             case QuizMode.Tens:
                 bool more = level < 3 ? Rng.Next(3) > 0 : Rng.Next(2) == 0;   // mostly "+10" at first
                 questionNum = more ? Rng.Next(1, hi - 9) : Rng.Next(11, hi + 1);
@@ -484,6 +504,46 @@ questionNum2),
                 return (a, Rng.Next(1, 10));
             }
         }
+    }
+
+    // Splitshuisjes per level: (whole, known part).
+    (int, int) MakeSplit()
+    {
+        switch (level)
+        {
+            case 1:                                           // split 5–10
+            {
+                int whole = Rng.Next(5, 11);
+                return (whole, Rng.Next(1, whole));
+            }
+            case 2:                                           // split up to 20, both parts ≤ 10 (13 = 8 + 5)
+                return SplitTo20();
+            case 3:                                           // to 20, or whole tens (70 = 30 + 40)
+            {
+                if (Rng.Next(2) == 0) return SplitTo20();
+                int k = Rng.Next(2, 11);
+                return (k * 10, Rng.Next(1, k) * 10);
+            }
+            default:                                          // tens and ones (47 = 40 + 7), or whole tens
+            {
+                if (Rng.Next(3) == 0)
+                {
+                    int k = Rng.Next(2, 11);
+                    return (k * 10, Rng.Next(1, k) * 10);
+                }
+                int whole = Rng.Next(21, 100);
+                if (whole % 10 == 0) whole++;
+                int tens = whole / 10 * 10;
+                return (whole, Rng.Next(2) == 0 ? tens : whole - tens);
+            }
+        }
+    }
+
+    (int, int) SplitTo20()
+    {
+        int whole = Rng.Next(10) < 7 ? Rng.Next(11, 21) : Rng.Next(6, 11);
+        int lo = Math.Max(1, whole - 10), hi = Math.Min(10, whole - 1);
+        return (whole, Rng.Next(lo, hi + 1));
     }
 
     // a + b where the sum passes 10: 8 + 5, 7 + 6 …
