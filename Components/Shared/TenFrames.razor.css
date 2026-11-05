@@ -1,0 +1,52 @@
+.tenframes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.tenframe {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    padding: 8px;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.tf-cell {
+    position: relative;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    transition: background 0.25s, box-shadow 0.25s;
+}
+
+.tf-empty {
+    border: 2px dashed var(--border);
+}
+.tf-a {
+    background: radial-gradient(circle at 35% 35%, #ff7a3a, #a02000);
+    box-shadow: 0 2px 6px var(--glow);
+}
+.tf-b {
+    background: radial-gradient(circle at 35% 35%, #ffe07a, #c08a00);
+    box-shadow: 0 2px 6px rgba(255, 210, 74, 0.45);
+}
+
+.tf-gone { opacity: 0.35; box-shadow: none; }
+.tf-gone::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    background:
+        linear-gradient(45deg,  transparent 44%, #f5e8e0 44%, #f5e8e0 56%, transparent 56%),
+        linear-gradient(-45deg, transparent 44%, #f5e8e0 44%, #f5e8e0 56%, transparent 56%);
+}
+
+@media (max-width: 640px) {
+    .tenframe { gap: 4px; padding: 6px; }
+    .tf-cell  { width: 24px; height: 24px; }
+}

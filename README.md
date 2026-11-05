@@ -17,6 +17,9 @@ A playful, kid-friendly web app for learning the numbers **0–100** — by sigh
   - **Make 10** — number bonds: how many more make ten
   
   - **Jump 10** — 10 more / 10 less than a number
+  - **Split** — *splitshuisjes*: the whole on the roof, one part in a room, what goes in the other room? (13 = 8 + ?, 70 = 30 + ?, 47 = 40 + ?)
+
+  Sums up to 20 and Make 10 are drawn in **ten-frames** (2 × 5 grids, like at school): for 8 + 5 the 8 is orange and the 5 is gold, finishing the first ten and spilling into the second.
 
   The quiz has an **automatic level** (saved on the device): five first-try answers in a row move up a level, two missed questions in a row move down. Level 1 is a warm-up (to 20, with Count and Make 10); level 2 goes to 50 with sums that cross ten; level 3 goes to 100 with whole-tens sums (30 + 40); level 4 adds two-digit ± one-digit sums (47 − 3). Wrong answers are picked to be tempting: off by one, off by ten, or the reversed number (74 for 47).
 
@@ -83,7 +86,7 @@ By default the app is published on host port **5012** (`http://localhost:5012`).
 Components/
   Layout/      MainLayout, NavMenu
   Pages/       Home, NumberChart, FlashCards, NumberQuiz, Multiply, Klok
-  Shared/      AnalogClock, ActivityCard, MobileNav, PageHeader, SettingsPanel, ShopModal, StarBadge, TtButton
+  Shared/      AnalogClock, TenFrames, ActivityCard, MobileNav, PageHeader, SettingsPanel, ShopModal, StarBadge, TtButton
 wwwroot/
   js/speech.js     Web Speech API interop
   js/effects.js    Canvas particle engine for the deluxe shop shows
