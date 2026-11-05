@@ -15,7 +15,26 @@
     </Action>
 </PageHeader>
 
-<span class="current-mode-label">@ModeLabel(currentMode)</span>
+<div class="quiz-status-row">
+    <span class="current-mode-label">@ModeLabel(currentMode)</span>
+    <span class="level-badge" title="@Strings.QuizLevelHint(Lang.Current)">
+        @Strings.QuizLevel(Lang.Current, level)
+        @if (level < MaxLevel)
+        {
+            <span class="level-pips">
+                @for (int i = 0; i < LevelUpRun; i++)
+                {
+                    <span class="pip @(i < levelRun ? "pip-on" : "")"></span>
+                }
+            </span>
+        }
+    </span>
+</div>
+
+@if (levelUpShown)
+{
+    <div class="level-up-banner">🚀 @Strings.QuizLevelUp(Lang.Current, level)</div>
+}
 
 @* ── Collapsible config (modes + auto-advance) ─────────────── *@
 <div class="quiz-config @(showSettings ? "cfg-open" : "")">
@@ -25,7 +44,8 @@
             var mode = m;
             var enabled = enabledModes.Contains(mode);
             var isOnly = enabledModes.Count == 1 && enabled;
-            <button class="mode-btn @(enabled ? "mode-active" : "mode-off") @(isOnly ? "mode-only" : "")"
+            <button class="mode-btn @(enabled ? "mode-active" : "mode-off") @(isOnly ? "mode-only" : "") @(LevelModes(level).Contains(mode) ? "" : "mode-not-level")"
+                    title="@(LevelModes(level).Contains(mode) ? "" : Strings.QuizModeNotThisLevel(Lang.Current))"
                     @onclick="() => ToggleMode(mode)"
                     disabled="@isOnly">
                 @ModeLabel(mode)
@@ -68,6 +88,19 @@
                     }
                 </div>
             </div>
+        }
+        else if ((currentMode == QuizMode.Add || currentMode == QuizMode.Subtract) && Math.Max(questionNum, targetNumber) > 20)
+        {
+            @* Too many to draw as dots (30 + 40, 47 − 3): show the sum as numbers. *@
+            <p class="quiz-question-text">@QuestionText</p>
+            <div class="quiz-sequence">
+                <div class="sequence-box seq-given">@questionNum</div>
+                <span class="sum-op">@(currentMode == QuizMode.Add ? "+" : "−")</span>
+                <div class="sequence-box seq-given">@questionNum2</div>
+                <span class="sum-op">=</span>
+                <div class="sequence-box seq-blank">?</div>
+            </div>
+            <TtButton Variant="icon" OnClick="HearQuestion">🔊</TtButton>
         }
         else if (currentMode == QuizMode.Add || currentMode == QuizMode.Subtract)
         {
@@ -132,6 +165,12 @@
                     <div class="sequence-arrow">→</div>
                     <div class="sequence-box seq-blank">?</div>
                 }
+                else if (currentMode == QuizMode.Tens)
+                {
+                    <div class="sequence-box seq-given">@questionNum</div>
+                    <div class="sequence-arrow tens-jump">@(questionNum2 > 0 ? "+10" : "−10")</div>
+                    <div class="sequence-box seq-blank">?</div>
+                }
                 else if (currentMode == QuizMode.Between)
                 {
                     <div class="sequence-box seq-given">@questionNum</div>
@@ -193,7 +232,7 @@
 
 
 @code {
-    private enum QuizMode { Word, Before, After, Between, Count, Add, Subtract, MakeTen }
+    private enum QuizMode { Word, Before, After, Between, Count, Add, Subtract, MakeTen, Tens }
 
     private static readonly QuizMode[] AllModes = Enum.GetValues<QuizMode>();
     private static readonly Random Rng = new();
@@ -215,6 +254,31 @@
     private int streak;
     private int lastStarsEarned;
 
+    // ── Automatic level ────────────────────────────────────
+    // 1 = warm-up (to 20, counting dots, make 10) · 2 = to 50, sums to 20 crossing ten, jumps of 10
+    // 3 = to 100, tens sums (30 + 40) · 4 = to 100, two-digit ± one-digit (47 − 3)
+    // Five first-try answers in a row → up a level; two missed questions in a row → down a level.
+    private const int MaxLevel = 4;
+    private const int LevelUpRun = 5;
+    private const int LevelDownRun = 2;
+    private int level = 2;                 // a 6-year-old starts at level 2
+    private int levelRun;                  // first-try answers in a row at this level
+    private int missRun;                   // missed questions in a row
+    private bool levelUpShown;
+
+    private static QuizMode[] LevelModes(int lvl) => lvl switch
+    {
+        1 => [QuizMode.Word, QuizMode.Before, QuizMode.After, QuizMode.Between,
+              QuizMode.Count, QuizMode.Add, QuizMode.Subtract, QuizMode.MakeTen],
+        _ => [QuizMode.Word, QuizMode.Before, QuizMode.After, QuizMode.Between,
+              QuizMode.Add, QuizMode.Subtract, QuizMode.Tens],
+    };
+
+    // Highest number used in naming / ordering questions at this level.
+    private int RangeMax => level switch { 1 => 20, 2 => 50, _ => NumberHelper.Max };
+    // From level 3 the small numbers are known: practise 10–100.
+    private int RangeMin => level >= 3 ? 10 : 1;
+
     // ── UI state ───────────────────────────────────────────
     private bool showSettings;
 
@@ -227,6 +291,8 @@
     protected override async Task OnInitializedAsync()
     {
         Lang.OnChange += OnLanguageChanged;
+        var saved = await JS.InvokeAsync<int>("getQuizLevel");
+        if (saved is >= 1 and <= MaxLevel) level = saved;
         await NextQuestion();
     }
 
@@ -250,6 +316,7 @@
         QuizMode.Add => Strings.QuizModeAdd(Lang.Current),
         QuizMode.Subtract => Strings.QuizModeSubtract(Lang.Current),
         QuizMode.MakeTen => Strings.QuizModeMakeTen(Lang.Current),
+        QuizMode.Tens => Strings.QuizModeTens(Lang.Current),
         _ => ""
     };
 
@@ -263,6 +330,8 @@ questionNum2),
         QuizMode.Add => Strings.QuizAdd(Lang.Current, questionNum, questionNum2),
         QuizMode.Subtract => Strings.QuizSubtract(Lang.Current, questionNum, questionNum2),
         QuizMode.MakeTen => Strings.QuizMakeTen(Lang.Current, questionNum),
+        QuizMode.Tens => questionNum2 > 0 ? Strings.QuizTensMore(Lang.Current, questionNum)
+                                          : Strings.QuizTensLess(Lang.Current, questionNum),
         _ => ""
     };
 
@@ -293,53 +362,56 @@ questionNum2),
         solved = false;
         wrongAttempts = [];
 
-        // Pick a random enabled mode
-        var pool = enabledModes.ToArray();
+        levelUpShown = false;
+
+        // Pick a random mode that is both switched on and part of this level.
+        var levelModes = LevelModes(level);
+        var pool = enabledModes.Where(levelModes.Contains).ToArray();
+        if (pool.Length == 0) pool = enabledModes.ToArray();     // parent's choice wins if nothing overlaps
         currentMode = pool[Rng.Next(pool.Length)];
 
+        int lo = RangeMin, hi = RangeMax;
         switch (currentMode)
         {
             case QuizMode.Word:
-                targetNumber = Rng.Next(1, NumberHelper.Max + 1);
-                choices = GenerateChoices(targetNumber, 1, NumberHelper.Max);
+                targetNumber = Rng.Next(lo, hi + 1);
+                choices = GenerateChoices(targetNumber, 1, hi, Reversed(targetNumber));
                 break;
 
             case QuizMode.Before:
-                questionNum = Rng.Next(2, NumberHelper.Max + 1);
+                questionNum = Rng.Next(lo + 1, hi + 1);
                 targetNumber = questionNum - 1;
-                choices = GenerateChoices(targetNumber, 1, NumberHelper.Max, questionNum);
+                choices = GenerateChoices(targetNumber, 1, hi, null, questionNum);
                 break;
 
             case QuizMode.After:
-                questionNum = Rng.Next(1, NumberHelper.Max);
+                questionNum = Rng.Next(lo, hi);
                 targetNumber = questionNum + 1;
-                choices = GenerateChoices(targetNumber, 1, NumberHelper.Max, questionNum);
+                choices = GenerateChoices(targetNumber, 1, hi, null, questionNum);
                 break;
 
             case QuizMode.Between:
-                targetNumber = Rng.Next(2, NumberHelper.Max);
+                targetNumber = Rng.Next(lo + 1, hi);
                 questionNum = targetNumber - 1;
                 questionNum2 = targetNumber + 1;
-                choices = GenerateChoices(targetNumber, 1, NumberHelper.Max, questionNum, questionNum2);
+                choices = GenerateChoices(targetNumber, 1, hi, null, questionNum, questionNum2);
                 break;
 
             case QuizMode.Count:
                 targetNumber = Rng.Next(1, 21);
-                choices = GenerateChoices(targetNumber, 1, NumberHelper.Max);
+                choices = GenerateChoices(targetNumber, 1, 20);
                 break;
 
             case QuizMode.Add:
-                questionNum = Rng.Next(1, 20);                  // first addend 1–19
-                questionNum2 = Rng.Next(1, 21 - questionNum);   // keeps the sum ≤ 20
+                (questionNum, questionNum2) = MakeAddition();
                 targetNumber = questionNum + questionNum2;
-                choices = GenerateChoices(targetNumber, 0, 20);
+                choices = SumChoices(targetNumber, Math.Max(20, targetNumber + 10));
                 break;
 
             case QuizMode.Subtract:
-                questionNum = Rng.Next(2, 21);                  // minuend 2–20
-                questionNum2 = Rng.Next(1, questionNum);        // subtrahend 1..a-1 → result ≥ 1
+                (questionNum, questionNum2) = MakeSubtraction();
                 targetNumber = questionNum - questionNum2;
-                choices = GenerateChoices(targetNumber, 1, 20);
+                choices = SumChoices(targetNumber, questionNum);
                 break;
 
             case QuizMode.MakeTen:
@@ -347,13 +419,143 @@ questionNum2),
                 targetNumber = 10 - questionNum;
                 choices = GenerateChoices(targetNumber, 1, 9);
                 break;
+
+            case QuizMode.Tens:
+                bool more = level < 3 ? Rng.Next(3) > 0 : Rng.Next(2) == 0;   // mostly "+10" at first
+                questionNum = more ? Rng.Next(1, hi - 9) : Rng.Next(11, hi + 1);
+                questionNum2 = more ? 10 : -10;
+                targetNumber = questionNum + questionNum2;
+                // Tempting wrong answers: off by one, or jumped the wrong way / twice.
+                choices = PickChoices(targetNumber,
+                    [targetNumber + 1, targetNumber - 1, questionNum + 1, questionNum - 1,
+                     targetNumber + 10, targetNumber - 10], 0, NumberHelper.Max, questionNum);
+                break;
         }
     }
 
-    List<int> GenerateChoices(int correct, int min, int max, params int[] exclude)
+    // ── Sums per level ─────────────────────────────────────
+    (int, int) MakeAddition()
+    {
+        switch (level)
+        {
+            case 1:                                           // within 10
+            {
+                int a = Rng.Next(1, 10);
+                return (a, Rng.Next(1, 11 - a));
+            }
+            case 2:                                           // within 20, mostly crossing ten (8 + 5)
+                return Rng.Next(10) < 6 ? CrossTenAdd() : AnyAddTo(20);
+            case 3:                                           // crossing ten, or whole tens (30 + 40)
+            {
+                if (Rng.Next(2) == 0) return CrossTenAdd();
+                int a = Rng.Next(1, 9);
+                return (a * 10, Rng.Next(1, 10 - a) * 10);
+            }
+            default:                                          // two-digit + one-digit (34 + 5, 47 + 6)
+            {
+                int a = Rng.Next(11, 90);
+                if (a % 10 == 0) a++;
+                return (a, Rng.Next(1, Math.Min(9, 99 - a) + 1));
+            }
+        }
+    }
+
+    (int, int) MakeSubtraction()
+    {
+        switch (level)
+        {
+            case 1:                                           // within 10
+            {
+                int a = Rng.Next(2, 11);
+                return (a, Rng.Next(1, a));
+            }
+            case 2:                                           // within 20, mostly crossing ten (13 − 6)
+                return Rng.Next(10) < 6 ? CrossTenSub() : AnySubFrom(20);
+            case 3:                                           // crossing ten, or whole tens (70 − 30)
+            {
+                if (Rng.Next(2) == 0) return CrossTenSub();
+                int a = Rng.Next(2, 11);
+                return (a * 10, Rng.Next(1, a) * 10);
+            }
+            default:                                          // two-digit − one-digit (47 − 3, 52 − 6)
+            {
+                int a = Rng.Next(21, 100);
+                if (a % 10 == 0) a++;
+                return (a, Rng.Next(1, 10));
+            }
+        }
+    }
+
+    // a + b where the sum passes 10: 8 + 5, 7 + 6 …
+    (int, int) CrossTenAdd()
+    {
+        int a = Rng.Next(2, 10);
+        return (a, Rng.Next(11 - a, 10));
+    }
+
+    // a − b where you pass 10 going down: 13 − 6, 15 − 8 …
+    (int, int) CrossTenSub()
+    {
+        int a = Rng.Next(11, 19);
+        return (a, Rng.Next(a % 10 + 1, 10));
+    }
+
+    (int, int) AnyAddTo(int max)
+    {
+        int a = Rng.Next(1, max);
+        return (a, Rng.Next(1, max + 1 - a));
+    }
+
+    (int, int) AnySubFrom(int max)
+    {
+        int a = Rng.Next(2, max + 1);
+        return (a, Rng.Next(1, a));
+    }
+
+    // 47 ↔ 74: the classic Dutch mix-up ("zevenenveertig" says the 7 first).
+    static int? Reversed(int n)
+    {
+        if (n < 12 || n > 99 || n % 10 == 0 || n % 11 == 0) return null;
+        return n % 10 * 10 + n / 10;
+    }
+
+    // Sum answers: off by one or two, and from level 2 "forgot the ten" (7 + 5 = 2).
+    // Off by +10 only once sums reach the tens (level 3+). Never below the bigger
+    // addend for "+", so no silly options like 0 for 4 + 6.
+    List<int> SumChoices(int correct, int max)
+    {
+        int[] tempting = level switch
+        {
+            1 => [correct + 1, correct - 1, correct + 2, correct - 2],
+            2 => [correct + 1, correct - 1, correct - 10, correct + 2, correct - 2],
+            _ => [correct + 1, correct - 1, correct + 10, correct - 10, correct + 2, correct - 2],
+        };
+        int min = currentMode == QuizMode.Add ? Math.Max(questionNum, questionNum2) : 0;
+        return PickChoices(correct, tempting, min, Math.Max(max, min + 10));
+    }
+
+    List<int> PickChoices(int correct, int[] tempting, int min, int max, params int[] exclude)
+    {
+        var excluded = new HashSet<int>(exclude) { correct };
+        var pool = new List<int> { correct };
+        foreach (var c in tempting.Where(c => c >= min && c <= max && !excluded.Contains(c))
+                                  .Distinct().OrderBy(_ => Rng.Next()))
+        {
+            if (pool.Count == 4) break;
+            pool.Add(c);
+        }
+        if (pool.Count < 4)
+            foreach (var c in GenerateChoices(correct, min, max, null, [.. exclude, .. pool]))
+                if (pool.Count < 4 && !pool.Contains(c)) pool.Add(c);
+        return pool.OrderBy(_ => Rng.Next()).ToList();
+    }
+
+    // `extra` is one hand-picked tempting answer to include when it's valid (e.g. 74 for 47).
+    List<int> GenerateChoices(int correct, int min, int max, int? extra = null, params int[] exclude)
     {
         var excluded = new HashSet<int>(exclude) { correct };
         var pool = new HashSet<int> { correct };
+        if (extra is int e && e >= min && e <= max && !excluded.Contains(e)) pool.Add(e);
 
         for (int attempt = 0; pool.Count < 4 && attempt < 200; attempt++)
         {
@@ -391,10 +593,12 @@ questionNum2),
             if (wrongAttempts.Count == 0) { score++; streak++; }
             lastStarsEarned = StarsForStreak(streak);
             await Stars.AddAsync(lastStarsEarned);
+            var levelChange = await TrackLevel(firstTry: wrongAttempts.Count == 0);
             var feedback = Strings.SpeakCorrectFeedback(Lang.Current, wrongAttempts.Count,
 streak);
             await JS.InvokeVoidAsync("speakNumber",
-                feedback + NumberHelper.GetSpeechWord(targetNumber, Lang.Current),
+                feedback + NumberHelper.GetSpeechWord(targetNumber, Lang.Current)
+                    + (levelChange > 0 ? ". " + Strings.QuizLevelUp(Lang.Current, level) : ""),
                 Lang.LangCode);
             StartCountdown();
         }
@@ -405,6 +609,31 @@ streak);
             await JS.InvokeVoidAsync("speakNumber",
 Strings.SpeakWrongFeedback(Lang.Current), Lang.LangCode);
         }
+    }
+
+    // Returns +1 on level up, −1 on level down, 0 otherwise.
+    async Task<int> TrackLevel(bool firstTry)
+    {
+        int change = 0;
+        if (firstTry)
+        {
+            missRun = 0;
+            if (++levelRun >= LevelUpRun && level < MaxLevel) { level++; change = 1; }
+        }
+        else
+        {
+            levelRun = 0;
+            if (++missRun >= LevelDownRun && level > 1) { level--; change = -1; }
+        }
+
+        if (change != 0)
+        {
+            levelRun = 0;
+            missRun = 0;
+            levelUpShown = change > 0;
+            await JS.InvokeVoidAsync("saveQuizLevel", level);
+        }
+        return change;
     }
 
     async Task NextQuestion()

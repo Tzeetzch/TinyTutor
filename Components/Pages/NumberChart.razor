@@ -12,8 +12,8 @@
     @for (int i = 0; i <= NumberHelper.Max; i++)
     {
         var num = i;
-        var group = num / 10;
-        <button class="number-cell group-@group @(lastClicked == num ? "cell-active" : "")"
+        var group = num / 10;                                // one decade per row, one colour per decade
+        <button class="number-cell group-@group @(num == 100 ? "cell-hundred" : "") @(lastClicked == num ? "cell-active" : "")"
                 @onclick="() => Speak(num)">
             @num
         </button>

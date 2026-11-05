@@ -1,14 +1,15 @@
 .number-grid {
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 0.6rem;
-    max-width: 480px;
+    grid-template-columns: repeat(10, minmax(0, 1fr));   /* honderdveld: 0–9, 10–19, … 90–99, then 100 */
+    gap: 0.45rem;
+    max-width: 720px;
     margin-bottom: 1.5rem;
 }
 
 .number-cell {
-    font-size: 1.6rem;
+    font-size: 1.35rem;
     font-weight: 700;
+    min-width: 0;
     border: 1px solid var(--btn-border);
     border-radius: 10px;
     padding: 0.6rem 0;
@@ -26,9 +27,24 @@
 .group-3 { background: linear-gradient(to bottom, #2878c8, #103a78); }
 .group-4 { background: linear-gradient(to bottom, #28a060, #0a5028); }
 .group-5 { background: linear-gradient(to bottom, #18a0a8, #084850); }
+.group-6 { background: linear-gradient(to bottom, #8a50d8, #42188a); }
+.group-7 { background: linear-gradient(to bottom, #d04888, #6a1040); }
+.group-8 { background: linear-gradient(to bottom, #7a9a18, #3a5000); }
+.group-9 { background: linear-gradient(to bottom, #8890a8, #3a4058); }   /* slate: clearly not the 30s blue */
 
-.cell-active {
-    outline: 3px solid var(--primary);
+/* 100 gets the whole bottom row, in gold */
+.cell-hundred {
+    grid-column: 1 / -1;
+    background: linear-gradient(to bottom, #ffd24a, #b07800);
+    color: #3a1800;
+    letter-spacing: 0.08em;
+}
+
+/* !important + the extra class beat app.css's "no outline on clicked buttons" rule */
+.number-cell.cell-active {
+    outline: 3px solid #ffd24a !important;
+    outline-offset: 2px;
+    z-index: 1;
     box-shadow: 0 0 12px var(--glow);
     transform: scale(1.12);
 }
@@ -41,7 +57,7 @@
 }
 
 @media (max-width: 640px) {
-    .number-grid    { gap: 0.35rem; max-width: 100%; }
-    .number-cell    { font-size: 1.2rem; padding: 0.45rem 0; border-radius: 8px; }
+    .number-grid    { gap: 0.22rem; max-width: 100%; }
+    .number-cell    { font-size: 0.95rem; padding: 0.45rem 0; border-radius: 6px; }
     .chart-spoken-word { font-size: 1.6rem; }
 }
