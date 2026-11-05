@@ -1,0 +1,298 @@
+@page "/kikker"
+@using System.Globalization
+@inject IJSRuntime JS
+@inject LanguageService Lang
+@inject StarService Stars
+@implements IDisposable
+
+<PageTitle>@Strings.FrogTitle(Lang.Current) – TinyTutor</PageTitle>
+
+<PageHeader Title="@Strings.FrogTitle(Lang.Current)"
+            Subtitle="@Strings.FrogSubtitle(Lang.Current)" />
+
+@* ── Mode picker ─────────────────────────────────────────── *@
+<div class="frog-modes">
+    <button class="mode-btn @(!allowBack ? "mode-active" : "")" @onclick="() => SetMode(false)">➡️ @Strings.FrogForward(Lang.Current)</button>
+    <button class="mode-btn @(allowBack ? "mode-active" : "")" @onclick="() => SetMode(true)">↔️ @Strings.FrogBoth(Lang.Current)</button>
+</div>
+
+@* ── The jumps to make ───────────────────────────────────── *@
+<div class="frog-task">
+    <span class="task-start">🐸 @start</span>
+    @for (int i = 0; i < jumps.Count; i++)
+    {
+        var done = i < jumpsDone;
+        <span class="task-jump @(jumps[i] < 0 ? "jump-back" : "") @(Math.Abs(jumps[i]) == 10 ? "jump-ten" : "jump-one") @(done ? "jump-done" : "")">
+            @(jumps[i] < 0 ? "−" : "+")@Math.Abs(jumps[i])
+        </span>
+    }
+    <span class="task-arrow">→</span>
+    <span class="task-end @(solved && !busy ? "end-known" : "")">@(solved && !busy ? end.ToString() : "?")</span>
+    <TtButton Variant="icon" OnClick="HearQuestion">🔊</TtButton>
+</div>
+
+@* ── Number line ─────────────────────────────────────────── *@
+<div class="line-wrap">
+    <svg class="numline" viewBox="0 0 @W @H" aria-hidden="true">
+        @* water + bank *@
+        <rect x="0" y="@(LineY + 6)" width="@W" height="@(H - LineY - 6)" rx="14" class="water" />
+
+        @* finished jump arcs *@
+        @for (int i = 0; i < jumpsDone; i++)
+        {
+            var from = Pos(i);
+            var to = Pos(i + 1);
+            var h = HopHeight(jumps[i]);
+            var x1 = X(from); var x2 = X(to); var mid = (x1 + x2) / 2;
+            <path class="arc @(Math.Abs(jumps[i]) == 10 ? "arc-ten" : "arc-one")"
+                  d="M @F(x1),@F(LineY) Q @F(mid),@F(LineY - 2 * h) @F(x2),@F(LineY)" />
+            <g>
+                <text class="arc-label" x="@F(mid)" y="@F(LineY - h - 12)">@(jumps[i] < 0 ? "−" : "+")@Math.Abs(jumps[i])</text>
+            </g>
+        }
+
+        @* the line itself *@
+        <line x1="@F(Pad - 20)" y1="@LineY" x2="@F(W - Pad + 20)" y2="@LineY" class="axis" />
+        @for (int n = lo; n <= hi; n++)
+        {
+            var x = X(n);
+            var big = n % 10 == 0;
+            var mid5 = n % 5 == 0;
+            var len = big ? 26 : mid5 ? 17 : 10;
+            <line x1="@F(x)" y1="@(LineY - len / 2)" x2="@F(x)" y2="@(LineY + len / 2)"
+                  class="tick @(big ? "tick-ten" : mid5 ? "tick-five" : "")" />
+            var showEnd = solved && !busy;
+            var isMark = n == start || (showEnd && n == end);
+            var crowded = Math.Abs(x - X(start)) < 60 || (showEnd && Math.Abs(x - X(end)) < 60);
+            @if (isMark || (big && !crowded))
+            {
+                var cls = n == start ? "lbl-start" : n == end ? "lbl-end" : "";
+                <g>
+                    <text class="lbl @cls" x="@F(x)" y="@(LineY + 50)">@n</text>
+                </g>
+            }
+        }
+
+        @* the frog: outer group slides sideways, inner group hops up and down *@
+        <g class="frog-pos" @key="questionKey"
+           style="transform: translate(@(F(X(frogAt)))px, @(LineY)px); transition: transform @(hopMs)ms linear;">
+            <g class="frog-hop @(hopping ? "hopping" : "") @(splash ? "splashing" : "")" @key="hopKey"
+               style="--up: -@(F(hopUp))px; animation-duration: @(hopMs)ms;">
+                <g class="frog-body">
+                    @* back legs *@
+                    <ellipse cx="-24" cy="-12" rx="14" ry="9" fill="#3f9a32" stroke="#173f12" stroke-width="2.5" />
+                    <ellipse cx="24" cy="-12" rx="14" ry="9" fill="#3f9a32" stroke="#173f12" stroke-width="2.5" />
+                    @* body *@
+                    <ellipse cx="0" cy="-28" rx="30" ry="24" fill="url(#frog-skin)" stroke="#173f12" stroke-width="3" />
+                    <ellipse cx="0" cy="-20" rx="18" ry="12" fill="#d9f29a" />
+                    @* eyes *@
+                    <circle cx="-15" cy="-50" r="11" fill="url(#frog-skin)" stroke="#173f12" stroke-width="2.5" />
+                    <circle cx="15" cy="-50" r="11" fill="url(#frog-skin)" stroke="#173f12" stroke-width="2.5" />
+                    <circle cx="-14" cy="-51" r="6.5" fill="#fffdf2" />
+                    <circle cx="16" cy="-51" r="6.5" fill="#fffdf2" />
+                    <circle cx="-12" cy="-51" r="3.5" fill="#1a1a1a" />
+                    <circle cx="18" cy="-51" r="3.5" fill="#1a1a1a" />
+                    @* smile + cheeks *@
+                    <path d="M -12,-34 Q 0,-25 12,-34" fill="none" stroke="#173f12" stroke-width="2.5" stroke-linecap="round" />
+                    <circle cx="-19" cy="-34" r="3.5" fill="#ff9aa8" opacity="0.7" />
+                    <circle cx="19" cy="-34" r="3.5" fill="#ff9aa8" opacity="0.7" />
+                    @* front feet *@
+                    <ellipse cx="-12" cy="-4" rx="8" ry="4" fill="#3f9a32" stroke="#173f12" stroke-width="2" />
+                    <ellipse cx="12" cy="-4" rx="8" ry="4" fill="#3f9a32" stroke="#173f12" stroke-width="2" />
+                </g>
+            </g>
+        </g>
+
+        <defs>
+            <linearGradient id="frog-skin" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#8be26a" />
+                <stop offset="1" stop-color="#3f9a32" />
+            </linearGradient>
+        </defs>
+    </svg>
+</div>
+
+@* ── Lily pads to choose from ────────────────────────────── *@
+@if (!solved)
+{
+    <div class="frog-where">@Strings.FrogWhere(Lang.Current)</div>
+    <div class="pads">
+        @foreach (var c in choices)
+        {
+            var val = c;
+            var wrong = wrongChoices.Contains(val);
+            <button class="pad @(wrong ? "pad-wrong" : "")" disabled="@(busy || wrong)" @onclick="() => Answer(val)">
+                <span class="pad-num">@val</span>
+            </button>
+        }
+    </div>
+    @if (hint is not null)
+    {
+        <div class="frog-hint">@hint</div>
+    }
+}
+else if (!busy)
+{
+    <div class="frog-feedback">
+        @Strings.QuizCorrect(Lang.Current) @Strings.FrogLanded(Lang.Current, end.ToString())
+        <span class="frog-stars">+@lastStarsEarned ⭐</span>
+    </div>
+    <div class="frog-next-row">
+        <TtButton Variant="primary" OnClick="NextQuestion">@Strings.QuizNext(Lang.Current)</TtButton>
+    </div>
+}
+
+<div class="frog-score">
+    @Strings.QuizScore(Lang.Current): @score / @asked
+    @if (streak >= 2)
+    {
+        <span class="frog-streak">🔥 @streak</span>
+    }
+</div>
+
+@code {
+    private static readonly Random Rng = new();
+
+    // SVG geometry (viewBox units)
+    private const int W = 800, H = 300, LineY = 210;
+    private const double Pad = 50;
+
+    private bool allowBack;
+    private int start = 34, end = 57, lo = 30, hi = 60;
+    private List<int> jumps = [10, 10, 3];
+    private List<int> choices = [];
+    private HashSet<int> wrongChoices = [];
+    private string? hint;
+    private bool solved, busy;
+
+    // animation state
+    private int frogAt = 34;
+    private int jumpsDone;
+    private bool hopping, splash;
+    private double hopUp;
+    private int hopMs;
+    private int hopKey, questionKey;
+
+    private int score, asked, streak, lastStarsEarned;
+
+    private static string F(double v) => v.ToString("0.#", CultureInfo.InvariantCulture);
+    private double X(int n) => Pad + (n - lo) * (W - 2 * Pad) / (hi - lo);
+    private int Pos(int jumpIndex) => start + jumps.Take(jumpIndex).Sum();
+    private static double HopHeight(int jump) => Math.Abs(jump) == 10 ? 95 : 35 + 6 * Math.Abs(jump);
+
+    protected override async Task OnInitializedAsync()
+    {
+        Lang.OnChange += OnLanguageChanged;
+        await Stars.EnsureLoadedAsync();
+        await NextQuestion();
+    }
+
+    private void OnLanguageChanged() => InvokeAsync(StateHasChanged);
+    public void Dispose() => Lang.OnChange -= OnLanguageChanged;
+
+    private static int StarsForStreak(int s) => s >= 20 ? 4 : s >= 10 ? 3 : s >= 5 ? 2 : 1;
+
+    async Task SetMode(bool back)
+    {
+        if (busy || back == allowBack) return;
+        allowBack = back;
+        await NextQuestion();
+    }
+
+    // ── A new task: start, some jumps of 10, then one small jump ──
+    void NewTask()
+    {
+        bool back = allowBack && Rng.Next(2) == 0;
+        int tens = Rng.Next(1, 4);                     // 1–3 jumps of 10
+        int ones = Rng.Next(0, 10);                    // then 0–9
+        if (tens == 1 && ones == 0) ones = Rng.Next(1, 10);
+        int total = tens * 10 + ones;
+
+        start = back ? Rng.Next(total, 101) : Rng.Next(0, 101 - total);
+        end = back ? start - total : start + total;
+
+        jumps = Enumerable.Repeat(back ? -10 : 10, tens).ToList();
+        if (ones > 0) jumps.Add(back ? -ones : ones);
+
+        // Show whole tens around the task, at least 20 wide
+        lo = Math.Min(start, end) / 10 * 10;
+        hi = (Math.Max(start, end) + 9) / 10 * 10;
+        if (hi == lo) hi += 10;
+        while (hi - lo < 20) { if (hi < 100) hi += 10; else lo -= 10; }
+
+        // Tempting wrong landings: forgot the small jump, one 10 too many/few, off by one
+        var tempting = new List<int> { end + 10, end - 10, end + 1, end - 1 };
+        if (ones > 0) tempting.Add(back ? start - tens * 10 : start + tens * 10);
+        tempting.Add(back ? start - ones - 10 * (tens - 1) : start + ones + 10 * (tens - 1));
+        var pool = tempting.Where(v => v != end && v >= 0 && v <= 100).Distinct().OrderBy(_ => Rng.Next()).Take(2);
+        choices = pool.Append(end).OrderBy(_ => Rng.Next()).ToList();
+    }
+
+    async Task NextQuestion()
+    {
+        NewTask();
+        solved = busy = hopping = splash = false;
+        hint = null;
+        wrongChoices = [];
+        jumpsDone = 0;
+        frogAt = start;
+        hopMs = 0;
+        questionKey++;
+        await HearQuestion();
+    }
+
+    async Task Answer(int value)
+    {
+        if (busy || solved || wrongChoices.Contains(value)) return;
+        await JS.InvokeVoidAsync("blurActive");
+
+        if (value != end)
+        {
+            streak = 0;
+            wrongChoices.Add(value);
+            hint = Strings.FrogSplash(Lang.Current);
+            splash = true; hopMs = 700; hopKey++;
+            StateHasChanged();
+            await Speak(hint);
+            return;
+        }
+
+        // Right! Now the frog actually makes the jumps, one by one.
+        busy = true;
+        solved = true;
+        hint = null;
+        for (int i = 0; i < jumps.Count; i++)
+        {
+            hopUp = HopHeight(jumps[i]);
+            hopMs = Math.Abs(jumps[i]) == 10 ? 650 : 520;
+            hopping = true; splash = false; hopKey++;
+            frogAt = Pos(i + 1);
+            StateHasChanged();
+            await Task.Delay(hopMs);
+            jumpsDone = i + 1;
+            hopping = false;
+            StateHasChanged();
+            _ = Speak(NumberHelper.GetSpeechWord(frogAt, Lang.Current), 0.95);
+            await Task.Delay(450);
+        }
+
+        asked++;
+        if (wrongChoices.Count == 0) { score++; streak++; }
+        lastStarsEarned = StarsForStreak(streak);
+        await Stars.AddAsync(lastStarsEarned);
+        busy = false;
+        StateHasChanged();
+
+        var praise = Strings.SpeakCorrectFeedback(Lang.Current, wrongChoices.Count, streak);
+        await Speak(praise + Strings.FrogLanded(Lang.Current, NumberHelper.GetSpeechWord(end, Lang.Current)));
+    }
+
+    Task HearQuestion()
+    {
+        var words = jumps.Select(j => NumberHelper.GetSpeechWord(Math.Abs(j), Lang.Current)).ToArray();
+        return Speak(Strings.FrogQuestion(Lang.Current, NumberHelper.GetSpeechWord(start, Lang.Current), words, jumps[0] < 0));
+    }
+
+    Task Speak(string text, double rate = 0.85)
+        => JS.InvokeVoidAsync("speakNumber", text, Lang.LangCode, rate).AsTask();
+}
