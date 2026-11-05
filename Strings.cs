@@ -12,6 +12,7 @@ public static class Strings
     public static string NavQuiz(string lang)       => T(lang, "Number Quiz",  "Getallenquiz");
     public static string NavMultiply(string lang)   => T(lang, "Multiply",     "Keersommen");
     public static string NavClock(string lang)      => T(lang, "Clock",        "Klok");
+    public static string NavCroc(string lang)       => T(lang, "Crocodile",    "Krokodil");
     public static string NavShop(string lang)       => T(lang, "Star Shop",    "Sterrenwinkel");
 
     // ── Home page ─────────────────────────────────────────
@@ -22,6 +23,7 @@ public static class Strings
     public static string HomeQuizDesc(string lang)  => T(lang, "Names, counting, sums and bonds!",            "Namen, tellen, sommen en splitsen!");
     public static string HomeMultiplyDesc(string lang) => T(lang, "Count the groups to solve times sums!",  "Tel de groepjes en los keersommen op!");
     public static string HomeClockDesc(string lang) => T(lang, "Listen to the time and find the right clock!", "Luister naar de tijd en zoek de goede klok!");
+    public static string HomeCrocDesc(string lang)  => T(lang, "Feed the crocodile the biggest number!", "Voer de krokodil het grootste getal!");
     public static string HomeShopDesc(string lang)  => T(lang, "Spend your stars on a fun show!",             "Geef je sterren uit aan een leuke show!");
 
     // ── Number Chart ──────────────────────────────────────
@@ -143,6 +145,21 @@ public static class Strings
     public static string ClockHandsHint(string lang)
         => T(lang, "Look carefully: the short hand shows the hour, the long hand shows the minutes.",
                    "Kijk goed: de kleine wijzer wijst het uur aan, de grote wijzer de minuten.");
+
+    // ── Crocodile ─────────────────────────────────────────
+    public static string CrocTitle(string lang)    => T(lang, "Hungry Crocodile", "Hongerige krokodil");
+    public static string CrocSubtitle(string lang) => T(lang, "The crocodile always eats the biggest number!",
+                                                             "De krokodil eet altijd het grootste getal!");
+    public static string CrocQuestion(string lang) => T(lang, "Which number does the crocodile eat?", "Welk getal eet de krokodil op?");
+    public static string CrocRange(string lang, int max) => T(lang, $"Up to {max}", $"Tot {max}");
+    public static string CrocYuck(string lang)     => T(lang, "Yuck! That's the smaller number. I want the biggest one!",
+                                                             "Bah! Dat is het kleinste getal. Ik wil het grootste!");
+
+    // Read left to right, the way the sign is written: "47 > 43" / "43 < 47".
+    public static string CrocCompare(string lang, string left, string right, bool leftBigger)
+        => leftBigger
+            ? T(lang, $"{left} is bigger than {right}!",  $"{left} is groter dan {right}!")
+            : T(lang, $"{left} is smaller than {right}!", $"{left} is kleiner dan {right}!");
 
     // ── Spoken feedback (sent to TTS) ─────────────────────
     private static readonly Random _rng = new();
